@@ -1,0 +1,10 @@
+<div layout="row" layout-align="start center">
+    <md-input-container>
+        <label>Time</label>
+        <input ng-disabled="trackRunning" ng-model="time" ui-number-mask="0" maxlength="3" style="width:1.7em;">
+        <div ng-messages ng-if="!trackRunning && !time">
+            <div ng-message>unbounded</div>
+        </div>
+    </md-input-container>
+    <label class="md-display-1">min</label>
+</div>

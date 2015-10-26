@@ -1,0 +1,19 @@
+<md-dialog aria-label="Temperature" ng-cloak>
+    <form>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>Temperature</h2>
+                <span flex></span>
+                <button-base on-click="close()" aria-label="Close" icon="close" class="md-icon-button" fill="white" style="margin-right:-8px;"></button-base>
+            </div>
+        </md-toolbar>
+        <md-dialog-content style="width:900px;height:300px; ">
+            <linechart data="data" options="options" mode=""></linechart>
+        </md-dialog-content>
+        <div class="md-actions" layout="row">
+            <md-button ng-click="close()">
+                Close
+            </md-button>
+        </div>
+    </form>
+</md-dialog>

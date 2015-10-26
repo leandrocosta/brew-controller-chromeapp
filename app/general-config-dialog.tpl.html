@@ -1,0 +1,37 @@
+<md-dialog aria-label="General config" ng-cloak>
+    <form>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>General config</h2>
+                <span flex></span>
+                <button-base on-click="cancel()" aria-label="Cancel" icon="close" class="md-icon-button" fill="white" style="margin-right:-8px;"></button-base>
+            </div>
+        </md-toolbar>
+        <md-dialog-content style="max-width:800px;max-height:810px; ">
+            <md-input-container flex>
+                <label>USB port</label>
+                <!-- <input ng-model="config.usbPort"> -->
+                <div layout="row" flex>
+                    <md-select flex layout-align="center center" aria-label="USB port" ng-model="config.usbPort">
+                        <md-option ng-repeat="port in ports" value="{{port.path}}">
+                            {{port.path}}
+                        </md-option>
+                    </md-select>
+                    <button-base on-click="refresh()" aria-label="Refresh" icon="refresh" class="md-icon-button" fill="dimgray" style="margin-top:16px;"></button-base>
+                </div>
+            </md-input-container>
+            <md-input-container flex>
+                <label>Bitrate</label>
+                <input ng-model="config.bitrate" ui-number-mask="0" maxlength="7">
+            </md-input-container>
+        </md-dialog-content>
+        <div class="md-actions" layout="row">
+            <md-button ng-click="save()">
+                Save
+            </md-button>
+            <md-button ng-click="cancel()" style="margin-right:20px;">
+                Cancel
+            </md-button>
+        </div>
+    </form>
+</md-dialog>

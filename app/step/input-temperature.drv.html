@@ -1,0 +1,10 @@
+<div layout="row" layout-align="start center">
+    <md-input-container>
+        <label>Temperature</label>
+        <input ng-disabled="trackRunning" ng-model="temperature" ui-number-mask="1" maxlength="4" style="width:2em;">
+        <div ng-messages ng-if="!trackRunning && !temperature">
+            <div ng-message>boiling</div>
+        </div>
+    </md-input-container>
+    <label class="md-display-1"> ºC</label>
+</div>
