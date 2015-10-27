@@ -62,7 +62,7 @@
             };
 
             this.unpause = function(track) {
-                arduinoService.play(track, track.current_step).then(function(response) {
+                arduinoService.play(track, track.steps[track.current_step_idx]).then(function(response) {
                     console.log('arduinoService response: ' + response);
                     track.paused = false;
                     track.steps[track.current_step_idx].paused = false;
