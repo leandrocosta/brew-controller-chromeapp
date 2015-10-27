@@ -46,7 +46,10 @@
         };
 
         chrome.serial.getDevices(function(ports) {
-            that.config.usbPort = ports[0].path;
+            console.log('usb ports', ports);
+            if (ports && ports.length) {
+                that.config.usbPort = ports[0].path;
+            }
         });
 
         this.set = function(track, step) {
