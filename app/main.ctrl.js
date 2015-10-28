@@ -1,9 +1,18 @@
 (function() {
     angular.module('App')
-        .controller('MainCtrl', function($scope, $mdDialog, chromeStorage /*, $mdToast, $interval, */ , dataService, arduinoService) {
+        .controller('MainCtrl', function($scope, $mdDialog, appConfig, chromeStorage /*, $mdToast, $interval, */ , dataService, arduinoService) {
             var vm = this;
             $scope.vm = vm;
 
+            vm.appConfig = appConfig;
+
+            $scope.$watch('vm.appConfig.demoMode', function(newValue, oldValue) {
+                if (newValue) {
+                    arduinoService.startDemo();
+                } else {
+                    arduinoService.stopDemo();
+                }
+            });
             /*dataService.getData().then(function(response) {
                 vm.tracks = response.data;
             });*/
@@ -61,6 +70,14 @@
 
             vm.connectToArduino = function() {
                 arduinoService.connect();
+            };
+
+            vm.disconnectFromArduino = function() {
+                arduinoService.disconnect();
+            };
+
+            vm.isConnected = function() {
+                return arduinoService.isConnected();
             };
 
             vm.openGeneralConfigDialog = function(ev) {

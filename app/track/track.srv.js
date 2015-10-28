@@ -2,7 +2,7 @@
     'use strict';
 
     angular.module('App')
-        .service('trackService', function($interval, $timeout, arduinoService, timerService) {
+        .service('trackService', function($interval, $timeout, $q, appConfig, arduinoService, timerService) {
             var that = this;
 
             this.addStep = function(track, index) {
@@ -25,29 +25,101 @@
             };
 
             this.play = function(track) {
-                arduinoService.set(track, track.steps[0]).then(function(response) {
-                    console.log('set - success: ' + response);
-                    arduinoService.play(track).then(function(response) {
-                        console.log('play - success: ' + response);
-                        track.running = true;
-                        track.paused = false;
-                        that.playStep(track, 0).then(function() {
-                            that.recursivelyGetTemperature(track);
-                        });
-                        track.series = [];
-                    });
+                return this.playStep(track, 0).then(function() {
+                    track.running = true;
+                    track.pause = false;
+                    track.series = [];
                 });
             };
 
+            this.playStep = function(track, stepIdx) {
+                var step = track.steps[stepIdx];
+
+                if (step.temperature) {
+                    return arduinoService.set(track, step).then(function(response) {
+                        console.log('set - success', response);
+                        arduinoService.play(track).then(function(response) {
+                            console.log('play - success', response);
+                            return arduinoService.getTemperature(track).then(function(response) {
+                                console.log('get init temp - success', response.value);
+                                step.run = {
+                                    "init_temp": response.value,
+                                    "curr_temp": null,
+                                    "curr_time": null,
+                                    "timer": null,
+                                    "alarmed": []
+                                };
+                                step.running = true;
+                                step.paused = false;
+                                track.current_step_idx = stepIdx;
+                            });
+                        });
+                    });
+                } else {
+                    // boiling step, Arduino's SSR not used, just start step
+                    return arduinoService.getTemperature(track).then(function(response) {
+                        console.log('get temp - success', response);
+                        step.run = {
+                            "init_temp": response.value,
+                            "curr_temp": null,
+                            "curr_time": null,
+                            "timer": null,
+                            "alarmed": []
+                        };
+                        step.running = true;
+                        step.paused = false;
+                        track.current_step_idx = stepIdx;
+                    });
+                }
+            };
+
             this.stop = function(track) {
-                stopLoop(track);
-                arduinoService.stop(track).then(function(response) {
+                /*arduinoService.stop(track).then(function(response) {
                     track.running = false;
                     track.steps[track.current_step_idx].running = false;
                     track.steps.forEach(function(step) {
                         delete step.run;
                     });
+                });*/
+                /*var step = track.steps[track.current_step_idx];
+                if (step.temperature) {
+                    return arduinoService.stop(track).then(function(response) {
+                        track.running = false;
+                        step.running = false;
+                        track.steps.forEach(function(step) {
+                            delete step.run;
+                        });
+                    });
+                } else {
+                    track.running = false;
+                    step.running = false;
+                    track.steps.forEach(function(step) {
+                        delete step.run;
+                    });
+                    var deferred = $q.defer();
+                    deferred.resolve(true);
+                    return deferred.promise;
+                }*/
+                return this.stopCurrentStep(track).then(function(response) {
+                    track.running = false;
+                    track.steps.forEach(function(step) {
+                        delete step.run;
+                    });
                 });
+            };
+
+            this.stopCurrentStep = function(track) {
+                var step = track.steps[track.current_step_idx];
+                if (step.temperature) {
+                    return arduinoService.stop(track).then(function(response) {
+                        step.running = false;
+                    });
+                } else {
+                    step.running = false;
+                    var deferred = $q.defer();
+                    deferred.resolve(true);
+                    return deferred.promise;
+                }
             };
 
             this.pause = function(track) {
@@ -73,42 +145,18 @@
                 });
             };
 
-            this.playStep = function(track, stepIdx) {
-                track.current_step_idx = stepIdx;
-                //track.current_step = angular.copy(track.steps[stepIdx]);
-                track.steps[track.current_step_idx].running = true;
-                track.steps[track.current_step_idx].paused = false;
-                track.steps[track.current_step_idx].run = {
-                    "init_temp": null,
-                    "curr_temp": null,
-                    "curr_time": null,
-                    "timer": null,
-                    "alarmed": []
-                };
-                //track.steps[track.current_step_idx].run.init_temp = track.steps[track.current_step_idx].run.curr_temp = arduinoService.getTemperature(track);
-                return arduinoService.getTemperature(track).then(function(response) {
-                    track.steps[track.current_step_idx].run.init_temp = track.steps[track.current_step_idx].run.curr_temp = response.value;
-                    console.log(response);
-                });
-            };
-
-            this.stopStep = function(step) {
-                step.running = false;
-            };
-
             this.forwardStep = function(track, stepIdx) {
-                this.stopStep(track.current_step);
+                this.stopCurrentStep(track);
                 this.playStep(track, stepIdx);
             };
 
             this.finish = function(track) {
-                this.stopStep(track.current_step);
-                stopLoop(track);
+                this.stopCurrentStep(track);
             };
 
             this.startBoil = function(track, stepIdx) {
                 console.log('startBoil');
-                var step = track.current_step;
+                var step = track.steps[track.current_step_idx];
 
                 if (!step.run.timer) {
                     step.run.timer = timerService.new();
@@ -117,12 +165,6 @@
             };
 
             this.recursivelyGetTemperature = function(track) {
-                /*track.loop = $interval(function() {
-                    var step = track.current_step;
-                    step.run.curr_temp = arduinoService.getTemperature(track);
-                    this.handleCurrTemp(track);
-
-                }, 1000);*/
                 var step = track.steps[track.current_step_idx];
                 arduinoService.getTemperature(track).then(function(response) {
                     if (step.run) {
@@ -137,28 +179,37 @@
             }
 
             this.handleCurrTemp = function(track, step) {
-                if (!step.run.timer && step.run.curr_temp >= step.temperature) {
+                if (angular.isDefined(step.temperature) && step.temperature != null && !step.run.timer && step.run.curr_temp >= step.temperature) {
                     // start counting, play alarms
                     step.run.timer = timerService.new();
                     step.run.timer.start();
                 }
 
                 if (!step.paused && step.run.timer) {
+                    var time = step.time;
+                    if (!appConfig.demoMode) {
+                        time *= 60;
+                    }
+
                     step.run.curr_time = step.run.timer.time() / 1000;
                     if (!step.temperature) {
-                        step.run.curr_time = step.time - step.run.curr_time;
+                        step.run.curr_time = time - step.run.curr_time;
                     }
+
                     var next_alarm_idx = step.run.alarmed.length;
+                    var alarm = (step.alarms.length > next_alarm_idx ? step.alarms[next_alarm_idx] : undefined);
+                    if (alarm !== undefined && !appConfig.demoMode) {
+                        alarm *= 60;
+                    }
 
                     if (step.temperature) {
-                        if (step.alarms.length > next_alarm_idx &&
-                            step.run.curr_time >= step.alarms[next_alarm_idx]) {
-                            /*angular.element('audio').play();*/
-                            /*alarmService.play();*/
+                        // TODO: alarms have time in minutes
+                        if (alarm !== undefined && step.run.curr_time >= alarm) {
+                            /* push the original value in minutes, not the value in seconds */
                             step.run.alarmed.push(step.alarms[next_alarm_idx]);
                         }
 
-                        if (step.time && step.run.curr_time >= step.time) {
+                        if (time && step.run.curr_time >= time) {
                             if (track.current_step_idx + 1 < track.steps.length) {
                                 that.forwardStep(track, track.current_step_idx + 1);
                             } else {
@@ -166,13 +217,12 @@
                             }
                         }
                     } else { // boiling step
-                        if (step.alarms.length > next_alarm_idx &&
-                            step.run.curr_time <= step.alarms[next_alarm_idx]) {
-                            /*angular.element('audio').play();*/
+                        if (alarm !== undefined && step.run.curr_time <= alarm) {
+                            /* push the original value in minutes, not the value in seconds */
                             step.run.alarmed.push(step.alarms[next_alarm_idx]);
                         }
 
-                        if (step.time && step.run.curr_time <= 0) {
+                        if (time && step.run.curr_time <= 0) {
                             if (track.current_step_idx + 1 < track.steps.length) {
                                 that.forwardStep(track, track.current_step_idx + 1);
                             } else {
@@ -186,7 +236,6 @@
 
             this.registerListener = function(track) {
                 arduinoService.registerListener(track.id, function(obj) {
-                    //console.log('track status', obj);
                     $timeout(function() {
                         track.status.pinSSR = obj.pinSSR;
                         track.status.pinDS18B20 = obj.pinDS18B20;
@@ -199,19 +248,20 @@
                         track.status.windowSize = obj.windowSize;
                         track.status.running = obj.running;
                         track.status.outputSSR = obj.outputSSR;
+
                         track.series.push(angular.extend({
                             x: new Date()
                         }, angular.copy(track.status)));
+
+                        if (angular.isDefined(track.current_step_idx) && track.steps[track.current_step_idx].running) {
+                            var step = track.steps[track.current_step_idx];
+                            if (step.running) {
+                                step.run.curr_temp = track.status.input;
+                                that.handleCurrTemp(track, step);
+                            }
+                        }
                     });
                 });
             };
-
-            function stopLoop(track) {
-                //console.log('stop_loop');
-                if (angular.isDefined(track.loop)) {
-                    $interval.cancel(track.loop);
-                    track.loop = undefined;
-                }
-            }
         });
 })();

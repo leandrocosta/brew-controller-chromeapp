@@ -34,9 +34,10 @@ timer-display {
     color: rgb(244, 67, 54);
 }
 
-.running-track {
+
+/*.running-track {
     background-color: rgba(240, 240, 240, .9);
-}
+}*/
 
 md-whiteframe {
     position: relative;

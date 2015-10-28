@@ -23,7 +23,18 @@
 
                 vm.playPause = function() {
                     if (!vm.track.running) {
-                        trackService.play(vm.track);
+                        trackService.play(vm.track).then(function() {
+
+                        }, function(errorMsg) {
+                            var toast = $mdToast.simple()
+                                .content(errorMsg)
+                                .action('OK')
+                                .hideDelay(0)
+                                .highlightAction(false)
+                                .position('bottom right')
+                                .parent($element);
+                            $mdToast.show(toast);
+                        });
                     } else if (vm.track.paused) {
                         trackService.unpause(vm.track);
                     } else {
@@ -32,7 +43,16 @@
                 };
 
                 vm.stop = function() {
-                    trackService.stop(vm.track);
+                    trackService.stop(vm.track).then(function() {}, function(errorMsg) {
+                        var toast = $mdToast.simple()
+                            .content(errorMsg)
+                            .action('OK')
+                            .hideDelay(0)
+                            .highlightAction(false)
+                            .position('bottom right')
+                            .parent($element);
+                        $mdToast.show(toast);
+                    });
                 };
 
                 vm.forwardStep = function(stepIdx) {

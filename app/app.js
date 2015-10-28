@@ -20,5 +20,21 @@
                 d.setSeconds(seconds);
                 return d;
             };
+        })
+        .service('appConfig', function() {
+            return {
+                demoMode: false,
+                mock: {
+                    0: {
+                        input: 0
+                    },
+                    1: {
+                        input: 0
+                    },
+                    2: {
+                        input: 0
+                    }
+                }
+            };
         });
 })();

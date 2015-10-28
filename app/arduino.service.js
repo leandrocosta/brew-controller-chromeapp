@@ -3,9 +3,9 @@
         .module('App')
         .service('arduinoService', arduinoService);
 
-    arduinoService.$inject = ['$q', '$interval'];
+    arduinoService.$inject = ['$q', '$interval', 'appConfig'];
 
-    function arduinoService($q, $interval) {
+    function arduinoService($q, $interval, appConfig) {
         var that = this;
 
         var promises = {
@@ -16,6 +16,10 @@
         };
 
         var connection = new SerialConnection();
+
+        this.isConnected = function() {
+            return connection.connectionId >= 0;
+        };
 
         connection.onConnect.addListener(function() {
             console.log('connected to ' + that.config.usbPort + ' at ' + that.config.bitrate);
@@ -54,43 +58,90 @@
 
         this.set = function(track, step) {
             // S 0 11 10 10000 0 0 10000 35.0
-            // {"cmd":"set","idx":0,"pinSSR":11,"pinDS18B20":10,"kp":10000,"ki":0,"kd":0,"windowSize":10000,"setpoint":35}
-            /*var obj = {
-                "cmd": "set",
-                "idx": track.id,
-                "pinSSR": track.config.pinSSR,
-                "pinDS18B20": track.config.pinDS18B20,
-                "kp": track.config.kp,
-                "ki": track.config.ki,
-                "kd": track.config.kd,
-                "windowSize": track.config.windowSize,
-                "setpoint": step.temperature
-            };
-
-            return this.sendCmdObj(track.id, obj);*/
-            return this.sendCmdStr(track.id, 'set', [
-                'S', track.id, track.config.pinSSR, track.config.pinDS18B20,
-                track.config.kp, track.config.ki, track.config.kd, track.config.windowSize, step.temperature
-            ].join(' '));
+            if (connection.connectionId >= 0) {
+                return this.sendCmdStr(track.id, 'set', [
+                    'S', track.id, track.config.pinSSR, track.config.pinDS18B20,
+                    track.config.kp, track.config.ki, track.config.kd, track.config.windowSize, step.temperature
+                ].join(' '));
+            } else {
+                var deferred = $q.defer();
+                if (appConfig.demoMode) {
+                    deferred.resolve({
+                        cmd: 'set',
+                        idx: track.idx,
+                        success: true
+                    });
+                    return deferred.promise;
+                } else {
+                    deferred.reject('Not connected to Arduino!');
+                    return deferred.promise;
+                }
+            }
         };
 
         this.play = function(track) {
             // {"cmd":"play","idx":0}
             //return this.sendCmd(track.id, "play");
-            return this.sendCmdStr(track.id, 'play', ['P', track.id].join(' '));
+            if (connection.connectionId >= 0) {
+                return this.sendCmdStr(track.id, 'play', ['P', track.id].join(' '));
+            } else {
+                var deferred = $q.defer();
+                if (appConfig.demoMode) {
+                    deferred.resolve({
+                        cmd: 'play',
+                        idx: track.id,
+                        success: true
+                    });
+                    return deferred.promise;
+                } else {
+                    deferred.reject('Not connected to Arduino!');
+                    return deferred.promise;
+                }
+            }
         };
 
         this.stop = function(track) {
             // {"cmd":"stop","idx":0}
             //return this.sendCmd(track.id, "stop");
-            return this.sendCmdStr(track.id, 'stop', ['T', track.id].join(' '));
+            if (connection.connectionId >= 0) {
+                return this.sendCmdStr(track.id, 'stop', ['T', track.id].join(' '));
+            } else {
+                var deferred = $q.defer();
+                if (appConfig.demoMode) {
+                    deferred.resolve({
+                        cmd: 'stop',
+                        idx: track.id,
+                        success: true
+                    });
+                    return deferred.promise;
+                } else {
+                    deferred.reject('Not connected to Arduino!');
+                    return deferred.promise;
+                }
+            }
         };
 
         this.getTemperature = function(track) {
             //return track.mock_temperature;
             // {"cmd":"temp":"idx":0}
             //return this.sendCmd(track.id, "temp");
-            return this.sendCmdStr(track.id, 'temp', ['E', track.id].join(' '));
+            if (connection.connectionId >= 0) {
+                return this.sendCmdStr(track.id, 'temp', ['E', track.id].join(' '));
+            } else {
+                var deferred = $q.defer();
+                if (appConfig.demoMode) {
+                    deferred.resolve({
+                        cmd: 'temp',
+                        idx: track.id,
+                        success: true,
+                        value: appConfig.mock[track.id].input
+                    });
+                    return deferred.promise;
+                } else {
+                    deferred.reject('Not connected to Arduino!');
+                    return deferred.promise;
+                }
+            }
         };
 
         /* this.sendCmd = function(trackId, cmd) {
@@ -134,10 +185,45 @@
             return deferred.promise;
         };
 
+        this.disconnect = function() {
+            /*connection.disconnect().then(function() {
+                that.state.desc = 'Disconnected.';
+            });*/
+            connection.disconnect();
+            that.state.desc = 'Disconnected.';
+        };
+
         //this.connect();
         this.listeners = {};
         this.registerListener = function(trackId, handler) {
             that.listeners[trackId] = handler;
+        };
+
+        this.startDemo = function() {
+            this.demoLoop = $interval(function() {
+                angular.forEach(that.listeners, function(handler, key) {
+                    handler({
+                        pinSSR: null,
+                        pinDS18B20: null,
+                        kp: null,
+                        ki: null,
+                        kd: null,
+                        input: appConfig.mock[key].input,
+                        output: null,
+                        setpoint: null,
+                        windowSize: null,
+                        running: null,
+                        outputSSR: null
+                    });
+                });
+            }, 1000);
+        };
+
+        this.stopDemo = function() {
+            if (angular.isDefined(this.demoLoop)) {
+                $interval.cancel(this.demoLoop);
+                this.demoLoop = undefined;
+            }
         };
     }
 })();
@@ -249,5 +335,11 @@ SerialConnection.prototype.disconnect = function() {
     if (this.connectionId < 0) {
         throw 'Invalid connection';
     }
-    serial.disconnect(this.connectionId, function() {});
+    var that = this;
+    //var deferred = $q.defer();
+    serial.disconnect(this.connectionId, function() {
+        that.connectionId = -1;
+        //deferred.resolve(true);
+    });
+    //return deferred.promise;
 };

@@ -45,6 +45,13 @@
                                 <button-add ng-if="!track.running" on-click="mainVm.addStep(track, $index+1)">&lt;button-add/&gt;</button-add>
                                 <button-finish ng-if="$last && track.running" on-click="mainVm.finish(track)" my-disabled="{{!step.running}}">&lt;button-finish/&gt;</button-finish>
                             </step>
+                            <div ng-if="mainVm.appConfig.demoMode" style="margin-left:auto;margin-right:4em;">
+                                Simulate input:
+                                <md-input-container>
+                                    <label>Temperature</label>
+                                    <input type="number" ng-model="mainVm.appConfig.mock[track.id].input" min="0" max="99.9" maxlength="4" style="width:2em;">
+                                </md-input-container>
+                            </div>
                             <div style="position:absolute;right:-6px;text-align:right;">
                                 <button-base on-click="mainVm.openTrackConfigDialog($event, track)" aria-label="Configurações" icon="settings" class="md-icon-button" fill="dimgray" style="display:block;">
                                 </button-base>
@@ -60,11 +67,16 @@
             <md-divider></md-divider>
         </md-list-item>
     </md-list>
-    <div flex layout="column" layout-align="end end" layout-margin>
-        <div layout="row" layout-align="center center">
+    <div flex layout="row" layout-align="end end" layout-margin>
+        <div layout="row" layout-align="start end" flex>
+            <md-switch ng-model="mainVm.appConfig.demoMode" aria-label="Simulation mode" class="md-warn" style="margin:0;">Simulation mode</md-switch>
+        </div>
+        <div layout="row" layout-align="end center">
             <button-base on-click="mainVm.openGeneralConfigDialog()" icon="settings" aria-label="Config" class="md-icon-button" fill="dimgray"></button-base>
-            <button-base on-click="mainVm.connectToArduino()" icon="usb" aria-label="Connect to Arduino" class="md-icon-button" fill="dimgray"></button-base>
-            <span>{{mainVm.arduinoState.desc}}</span>
+            <button-base ng-if="! mainVm.isConnected()" on-click="mainVm.connectToArduino()" icon="usb" aria-label="Connect to Arduino" class="md-icon-button" fill="dimgray"></button-base>
+            <button-base ng-if="mainVm.isConnected()" on-click="mainVm.disconnectFromArduino()" icon="usb" aria-label="Disconnect from Arduino" class="md-icon-button" fill="deepskyblue"></button-base>
+            <!-- <span>{{mainVm.arduinoState.desc}}</span> -->
+            <div style="min-width:7em;text-align:right;">{{mainVm.arduinoState.desc}}</div>
         </div>
     </div>
     <audio src="beep.mp3">
