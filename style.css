@@ -70,6 +70,10 @@ md-chips input {
     width: 1em;
 }
 
+md-chips-wrap {
+    padding-bottom: 0 !important;
+}
+
 md-chip {
     margin-right: 4px !important;
     padding-left: 6px !important;
