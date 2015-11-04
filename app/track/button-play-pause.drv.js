@@ -7,7 +7,8 @@
                 scope: {
                     onClick: '&',
                     showPlay: '@',
-                    showPause: '@'
+                    showPause: '@',
+                    myDisabled: '@'
                 },
                 /*template: '<button-base on-click="onClick()" arial-label="Play / pause" icon="play_arrow" class="md-fab" fill="white"></button-base>'*/
                 template: '<md-button ng-click="onClick()" ng-disabled="myDisabled === ' + "'true'" + '" ng-enter="onClick()" ' +

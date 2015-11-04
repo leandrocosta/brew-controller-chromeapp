@@ -67,11 +67,11 @@ div[ng-message] {
 }
 
 md-chips input {
-    width: 1em;
+    width: 2em;
 }
 
 md-chips-wrap {
-    padding-bottom: 0 !important;
+    padding-bottom: 4px !important;
 }
 
 md-chip {
@@ -82,6 +82,17 @@ md-chip {
     line-height: 24px !important;
     width: 5em;
     font-size: .7em;
+}
+
+.md-chip-input-container {
+    height: 24px !important;
+    line-height: 24px !important;
+    font-size: 14px !important;
+}
+
+.md-chip-input-container input {
+    height: 24px !important;
+    line-height: 24px !important;
 }
 
 md-chip-template .md-caption {

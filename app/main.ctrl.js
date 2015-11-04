@@ -156,6 +156,7 @@
                             axes: {
                                 x: {
                                     type: 'date',
+                                    /*zoomable: true,*/
                                 },
                                 y: {},
                                 y2: {
@@ -167,20 +168,27 @@
                             series: [{
                                 y: 'input',
                                 axis: 'y',
+                                type: 'area',
                                 label: 'Temperature',
-                                color: '#d62728' //'#8c564b'
+                                color: '#d62728', //'#8c564b'
+                                /*lineMode: 'monotone',*/
                             }, {
                                 y: 'outputSSR',
-                                type: 'column',
+                                type: 'area', //'column',
                                 axis: 'y2',
                                 label: 'SSR Output',
-                                color: '#ff7f0e' //'#ffaa00'
-                            }]
+                                color: '#ff7f0e', //'#ffaa00'
+                                /*lineMode: 'basis-open',*/
+                            }],
+                            /*lineMode: 'monotone',*/
+                            drawDots: false,
                         };
 
                         $scope.close = function() {
                             $mdDialog.hide();
-                        }
+                        };
+
+                        $scope.Math = window.Math;
                     },
                     targetEvent: ev,
                     clickOutsideToClose: true

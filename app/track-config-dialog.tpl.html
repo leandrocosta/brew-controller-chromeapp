@@ -36,6 +36,10 @@
             </div>
             <div layout="row">
                 <md-input-container flex>
+                    <label>Sample Time (millis)</label>
+                    <input ng-model="config.sampleTime" ui-number-mask="0" maxlength="7">
+                </md-input-container>
+                <md-input-container flex>
                     <label>Window size (millis)</label>
                     <input ng-model="config.windowSize" ui-number-mask="0" maxlength="7">
                 </md-input-container>

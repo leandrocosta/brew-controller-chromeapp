@@ -164,7 +164,7 @@
                 }
             };
 
-            this.recursivelyGetTemperature = function(track) {
+            /*this.recursivelyGetTemperature = function(track) {
                 var step = track.steps[track.current_step_idx];
                 arduinoService.getTemperature(track).then(function(response) {
                     if (step.run) {
@@ -176,7 +176,7 @@
                         }
                     }
                 });
-            }
+            }*/
 
             this.handleCurrTemp = function(track, step) {
                 if (angular.isDefined(step.temperature) && step.temperature != null && !step.run.timer && step.run.curr_temp >= step.temperature) {
@@ -245,15 +245,34 @@
                         track.status.input = obj.input;
                         track.status.output = obj.output;
                         track.status.setpoint = obj.setpoint;
+                        track.status.sampleTime = obj.sampleTime;
                         track.status.windowSize = obj.windowSize;
                         track.status.running = obj.running;
                         track.status.outputSSR = obj.outputSSR;
 
-                        track.series.push(angular.extend({
-                            x: new Date()
-                        }, angular.copy(track.status)));
+                        if (track.running) {
+                            var sample = angular.extend({
+                                x: new Date()
+                            }, angular.copy(track.status));
 
-                        if (angular.isDefined(track.current_step_idx) && track.steps[track.current_step_idx].running) {
+                            if (track.series.length >= 2) {
+                                var lastSample = track.series[track.series.length - 1];
+                                var secondToLastSample = track.series[track.series.length - 2];
+
+                                if (sample.input === lastSample.input && sample.input === secondToLastSample.input &&
+                                    sample.outputSSR === lastSample.outputSSR && sample.outputSSR === secondToLastSample.outputSSR) {
+                                    track.series[track.series.length - 1] = sample;
+                                } else {
+                                    track.series.push(sample);
+                                }
+                            } else {
+                                track.series.push(sample);
+                            }
+                            //track.series.push(sample);
+                        }
+
+                        /*if (angular.isDefined(track.current_step_idx) && track.steps[track.current_step_idx].running) {*/
+                        if (track.running) {
                             var step = track.steps[track.current_step_idx];
                             if (step.running) {
                                 step.run.curr_temp = track.status.input;

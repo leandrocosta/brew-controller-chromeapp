@@ -61,7 +61,7 @@
             if (connection.connectionId >= 0) {
                 return this.sendCmdStr(track.id, 'set', [
                     'S', track.id, track.config.pinSSR, track.config.pinDS18B20,
-                    track.config.kp, track.config.ki, track.config.kd, track.config.windowSize, step.temperature
+                    track.config.kp, track.config.ki, track.config.kd, track.config.sampleTime, track.config.windowSize, step.temperature
                 ].join(' '));
             } else {
                 var deferred = $q.defer();
@@ -178,6 +178,7 @@
         });
 
         this.connect = function() {
+            this.stopDemo();
             that.state.desc = 'Connecting...';
             var deferred = $q.defer();
             promises["connect"] = deferred;
@@ -200,6 +201,10 @@
         };
 
         this.startDemo = function() {
+            if (this.isConnected()) {
+                this.disconnect();
+            }
+
             this.demoLoop = $interval(function() {
                 angular.forEach(that.listeners, function(handler, key) {
                     handler({
@@ -211,9 +216,10 @@
                         input: appConfig.mock[key].input,
                         output: null,
                         setpoint: null,
+                        sampleTime: null,
                         windowSize: null,
                         running: null,
-                        outputSSR: null
+                        outputSSR: (new Date() % 2 ? 1 : 0)
                     });
                 });
             }, 1000);
@@ -223,6 +229,7 @@
             if (angular.isDefined(this.demoLoop)) {
                 $interval.cancel(this.demoLoop);
                 this.demoLoop = undefined;
+                appConfig.demoMode = false;
             }
         };
     }
