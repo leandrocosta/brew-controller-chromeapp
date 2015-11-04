@@ -7,8 +7,11 @@
                 <button-base on-click="close()" aria-label="Close" icon="close" class="md-icon-button" fill="white" style="margin-right:-8px;"></button-base>
             </div>
         </md-toolbar>
-        <md-dialog-content style="width:900px;height:340px;overflow-x:auto;overflow-y:hidden;">
-            <linechart data="data" options="options" mode="" width="{{948+20*Math.floor(data.length/100)}}"></linechart>
+        <md-dialog-content style="width:900px;height:320px;overflow-x:auto;overflow-y:hidden;">
+            <linechart data="data" options="options" mode=""></linechart>
+            <!--<linechart data="data" options="options" mode="" width="{{948+20*Math.floor(data.length/100)}}"></linechart>-->
+            <!--<linechart data="data" options="options" mode="" width="{{948+20*Math.floor(((data[data.length-1].x-data[0].x)/1000)/100)}}"></linechart>-->
+            <!--<linechart data="data" options="options" mode="" width="{{948+60*Math.floor(((data[data.length-1].x-data[0].x)/1000)/120)}}"></linechart>-->
         </md-dialog-content>
         <div class="md-actions" layout="row">
             <md-button ng-click="close()">
