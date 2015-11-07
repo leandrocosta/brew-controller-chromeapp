@@ -63,9 +63,9 @@
                 $scope.$broadcast('finish', track);
             };
 
-            vm.startBoil = function(track, stepIdx) {
-                console.log('main.startBoil');
-                $scope.$broadcast('start-boil', track, stepIdx);
+            vm.startTimer = function(track, stepIdx) {
+                console.log('main.startTimer');
+                $scope.$broadcast('start-timer', track, stepIdx);
             };
 
             vm.connectToArduino = function() {

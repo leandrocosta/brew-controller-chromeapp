@@ -158,8 +158,8 @@
                 this.stopCurrentStep(track);
             };
 
-            this.startBoil = function(track, stepIdx) {
-                console.log('startBoil');
+            this.startTimer = function(track, stepIdx) {
+                console.log('startTimer');
                 var step = track.steps[track.current_step_idx];
 
                 if (!step.run.timer) {

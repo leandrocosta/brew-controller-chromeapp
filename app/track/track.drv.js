@@ -63,8 +63,8 @@
                     trackService.finish(vm.track);
                 };
 
-                vm.startBoil = function(stepIdx) {
-                    trackService.startBoil(vm.track, stepIdx);
+                vm.startTimer = function(stepIdx) {
+                    trackService.startTimer(vm.track, stepIdx);
                 };
 
                 vm.saveConfig = function() {
@@ -118,9 +118,9 @@
                     }
                 });
 
-                $scope.$on('start-boil', function(event, t, s) {
+                $scope.$on('start-timer', function(event, t, s) {
                     if (t === vm.track) {
-                        vm.startBoil(s);
+                        vm.startTimer(s);
                     }
                 });
 

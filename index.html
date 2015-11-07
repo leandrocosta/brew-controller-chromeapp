@@ -36,7 +36,7 @@
                                         <step-time style="margin-right:1em;">
                                             <input-time model="step.time" track-running="track.running">time: {{step.time}}</input-time>
                                             <timer-display ng-if="track.running && step.run.curr_time">{{step.running?'Now':'Last'}}: {{step.run.curr_time| secondsToDateTime | date:'HH:mm:ss'}}</timer-display>
-                                            <button-start-boil ng-if="step.running && step.time && !step.temperature" on-click="mainVm.startBoil(track, $index)" my-disabled="{{step.run.timer !== null}}"></button-start-boil>
+                                            <button-start-timer ng-if="step.running && step.time" on-click="mainVm.startTimer(track, $index)" my-disabled="{{step.run.timer !== null}}"></button-start-timer>
                                         </step-time>
                                         <button-remove on-click="mainVm.delStep(track, $index)">&lt;button-remove/&gt;</button-remove>
                                     </div>
@@ -116,7 +116,7 @@
     <script src="app/step/input-time.drv.js"></script>
     <script src="app/step/progress-temperature.drv.js"></script>
     <script src="app/step/button-remove.drv.js"></script>
-    <script src="app/step/button-start-boil.drv.js"></script>
+    <script src="app/step/button-start-timer.drv.js"></script>
 </body>
 
 </html>

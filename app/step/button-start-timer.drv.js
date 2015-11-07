@@ -2,13 +2,13 @@
     'use strict';
 
     angular.module('App')
-        .directive('buttonStartBoil', function() {
+        .directive('buttonStartTimer', function() {
             return {
                 scope: {
                     onClick: '&',
                     myDisabled: '@'
                 },
-                templateUrl: 'app/step/button-start-boil.drv.html'
+                templateUrl: 'app/step/button-start-timer.drv.html'
             };
         });
 })();
