@@ -64,6 +64,7 @@ label {
 
 div[ng-message] {
     padding-right: 0 !important;
+    font-size: 10px !important;
 }
 
 md-chips input {

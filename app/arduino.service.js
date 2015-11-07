@@ -37,6 +37,8 @@
 
         connection.onError.addListener(function(error) {
             console.log('onError', error);
+            console.log('changing connectionId from [' + connection.connectionId + '] to -1');
+            connection.connectionId = -1;
             that.state.desc = 'Connection error!';
         });
 
@@ -56,110 +58,95 @@
             }
         });
 
-        this.set = function(track, step) {
-            // S 0 11 10 10000 0 0 10000 35.0
-            if (connection.connectionId >= 0) {
-                return this.sendCmdStr(track.id, 'set', [
-                    'S', track.id, track.config.pinSSR, track.config.pinDS18B20,
-                    track.config.kp, track.config.ki, track.config.kd, track.config.sampleTime, track.config.windowSize, step.temperature
-                ].join(' '));
-            } else {
+        this.set = function(track, step) { // S 0 11 10 10000 0 0 10000 35.0
+            var str = [
+                'S', track.id,
+                track.config.pinSSR || 0,
+                track.config.pinDS18B20 || 0,
+                track.config.kp || 0,
+                track.config.ki || 0,
+                track.config.kd || 0,
+                track.config.sampleTime || 0,
+                track.config.windowSize || 0,
+                step.temperature || 0
+            ].join(' ');
+
+            if (appConfig.demoMode) {
+                console.log('FAKE SEND: ' + str + ']');
                 var deferred = $q.defer();
-                if (appConfig.demoMode) {
-                    deferred.resolve({
-                        cmd: 'set',
-                        idx: track.idx,
-                        success: true
-                    });
-                    return deferred.promise;
-                } else {
-                    deferred.reject('Not connected to Arduino!');
-                    return deferred.promise;
-                }
+                deferred.resolve({
+                    cmd: 'set',
+                    idx: track.id,
+                    success: true
+                });
+                return deferred.promise;
+            } else {
+                return this.sendCmdStr(track.id, 'set', str);
             }
         };
 
-        this.play = function(track) {
-            // {"cmd":"play","idx":0}
-            //return this.sendCmd(track.id, "play");
-            if (connection.connectionId >= 0) {
-                return this.sendCmdStr(track.id, 'play', ['P', track.id].join(' '));
-            } else {
+        this.play = function(track) { // P 0
+            var str = ['P', track.id].join(' ');
+            if (appConfig.demoMode) {
+                console.log('FAKE SEND: ' + str + ']');
                 var deferred = $q.defer();
-                if (appConfig.demoMode) {
-                    deferred.resolve({
-                        cmd: 'play',
-                        idx: track.id,
-                        success: true
-                    });
-                    return deferred.promise;
-                } else {
-                    deferred.reject('Not connected to Arduino!');
-                    return deferred.promise;
-                }
+                deferred.resolve({
+                    cmd: 'play',
+                    idx: track.id,
+                    success: true
+                });
+                return deferred.promise;
+            } else {
+                return this.sendCmdStr(track.id, 'play', str);
             }
         };
 
-        this.stop = function(track) {
-            // {"cmd":"stop","idx":0}
-            //return this.sendCmd(track.id, "stop");
-            if (connection.connectionId >= 0) {
-                return this.sendCmdStr(track.id, 'stop', ['T', track.id].join(' '));
-            } else {
+        this.stop = function(track) { // T 0
+            var str = ['T', track.id].join(' ');
+            if (appConfig.demoMode) {
+                console.log('FAKE SEND: ' + str + ']');
                 var deferred = $q.defer();
-                if (appConfig.demoMode) {
-                    deferred.resolve({
-                        cmd: 'stop',
-                        idx: track.id,
-                        success: true
-                    });
-                    return deferred.promise;
-                } else {
-                    deferred.reject('Not connected to Arduino!');
-                    return deferred.promise;
-                }
+                deferred.resolve({
+                    cmd: 'stop',
+                    idx: track.id,
+                    success: true
+                });
+                return deferred.promise;
+            } else {
+                return this.sendCmdStr(track.id, 'stop', str);
             }
         };
 
-        this.getTemperature = function(track) {
-            //return track.mock_temperature;
-            // {"cmd":"temp":"idx":0}
-            //return this.sendCmd(track.id, "temp");
-            if (connection.connectionId >= 0) {
-                return this.sendCmdStr(track.id, 'temp', ['E', track.id].join(' '));
-            } else {
+        this.getTemperature = function(track) { // E 0
+            var str = ['E', track.id].join(' ');
+            if (appConfig.demoMode) {
+                console.log('FAKE SEND: ' + str + ']');
                 var deferred = $q.defer();
-                if (appConfig.demoMode) {
-                    deferred.resolve({
-                        cmd: 'temp',
-                        idx: track.id,
-                        success: true,
-                        value: appConfig.mock[track.id].input
-                    });
-                    return deferred.promise;
-                } else {
-                    deferred.reject('Not connected to Arduino!');
-                    return deferred.promise;
-                }
+                deferred.resolve({
+                    cmd: 'temp',
+                    idx: track.id,
+                    success: true,
+                    value: appConfig.mock[track.id].input
+                });
+                return deferred.promise;
+            } else {
+                return this.sendCmdStr(track.id, 'temp', str);
             }
         };
-
-        /* this.sendCmd = function(trackId, cmd) {
-             return this.sendCmdObj(trackId, {
-                 "cmd": cmd,
-                 "idx": trackId
-             });
-         };
-
-         this.sendCmdObj = function(trackId, obj) {
-             return this.sendCmdStr(trackId, obj.cmd, JSON.stringify(obj));
-         };*/
 
         this.sendCmdStr = function(trackId, cmd, str) {
-            //console.log('SEND: [' + str + ']');
-            connection.send(str + '\n');
             var deferred = $q.defer();
-            promises[cmd][trackId] = deferred;
+            if (connection.connectionId < 0) {
+                if (!appConfig.demoMode) {
+                    deferred.reject('Not connected to Arduino!');
+                }
+            } else if (trackId >= 0) {
+                console.log('SEND: [' + str + ']');
+                connection.send(str + '\n');
+                promises[cmd][trackId] = deferred;
+            } else {
+                deferred.reject('trackId is invalid');
+            }
             return deferred.promise;
         }
 
@@ -171,7 +158,6 @@
                     promises[obj.cmd][obj.idx].resolve(obj);
                     delete promises[obj.cmd][obj.idx];
                 } else if (angular.isDefined(obj.idx)) {
-                    //console.log('REPORT: ', obj.idx, obj);
                     that.listeners[obj.idx](obj);
                 }
             }

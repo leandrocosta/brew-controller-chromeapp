@@ -19,8 +19,12 @@
 
             this.saveConfig = function(track) {
                 console.log('saving config');
-                arduinoService.set(track, track.steps[0]).then(function(response) {
-                    console.log('set - success: ' + response);
+                var step = track.steps[0];
+                if (track.running) {
+                    step = track.steps[track.current_step_idx];
+                }
+                arduinoService.set(track, step).then(function(response) {
+                    console.log('set - success: ', response);
                 });
             };
 

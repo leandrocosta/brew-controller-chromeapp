@@ -126,7 +126,9 @@
 
                         $scope.save = function() {
                             track.config = angular.copy($scope.config);
-                            outerScope.$broadcast('save-config', track);
+                            if (arduinoService.isConnected() || vm.appConfig.demoMode) {
+                                outerScope.$broadcast('save-config', track);
+                            }
                             $mdDialog.hide();
                         };
 
