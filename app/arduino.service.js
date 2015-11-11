@@ -68,7 +68,8 @@
                 track.config.kd || 0,
                 track.config.sampleTime || 0,
                 track.config.windowSize || 0,
-                step.temperature || 0
+                step.temperature || 0,
+                track.config.output || 0,
             ].join(' ');
 
             if (appConfig.demoMode) {
