@@ -149,7 +149,7 @@
                 deferred.reject('trackId is invalid');
             }
             return deferred.promise;
-        }
+        };
 
         connection.onReadLine.addListener(function(line) {
             //console.log('RECV: [' + line + ']');
