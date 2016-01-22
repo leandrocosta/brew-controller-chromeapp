@@ -59,6 +59,8 @@
         });
 
         this.set = function(track, step) { // S 0 11 10 10000 0 0 10000 35.0
+            var temperature = (step ? step.temperature : 0);
+
             var str = [
                 'S', track.id,
                 track.config.pinSSR || 0,
@@ -68,7 +70,7 @@
                 track.config.kd || 0,
                 track.config.sampleTime || 0,
                 track.config.windowSize || 0,
-                step.temperature || 0,
+                temperature || 0,
                 track.config.output || 0,
             ].join(' ');
 
@@ -152,7 +154,7 @@
         };
 
         connection.onReadLine.addListener(function(line) {
-            //console.log('RECV: [' + line + ']');
+            console.log('RECV: [' + line + ']');
             if (line.indexOf('LOG:') !== 0) {
                 var obj = JSON.parse(line);
                 if (angular.isDefined(obj.cmd) && angular.isDefined(obj.success)) {
