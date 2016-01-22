@@ -254,6 +254,11 @@
                         track.status.running = obj.running;
                         track.status.outputSSR = obj.outputSSR;
 
+                        // bug: sometimes DS18B20 returns -127 as temperature, we don't want to see these values in graph
+                        if (track.status.input < 0) {
+                            track.status.input = undefined;
+                        }
+
                         if (track.running) {
                             var sample = angular.extend({
                                 x: new Date()
