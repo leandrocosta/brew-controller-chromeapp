@@ -20,6 +20,11 @@ track-head {
     z-index: 1;
 }
 
+
+/*track-head.right-bordered {
+    border-right: 1px solid #ddd;
+}*/
+
 step {
     margin-left: 8px;
 }
@@ -52,7 +57,7 @@ md-whiteframe {
     padding-bottom: 20px;
 }*/
 
-md-input-container>input {
+step md-input-container>input {
     font-size: 2.2em;
     color: #444!important;
     text-align: right;
@@ -158,3 +163,20 @@ button-forward .md-button.md-fab {
 .md-button.md-focused {
     z-index: 2;
 }
+
+.ng-hide:not(.ng-hide-animate) {
+    display: none !important;
+}
+
+md-autocomplete {
+    min-width: 260px !important;
+}
+
+
+/*.layout-margin > * {
+    margin: 0;
+}
+
+.layout-padding > * {
+    padding: 0;
+}*/

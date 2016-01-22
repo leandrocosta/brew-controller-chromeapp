@@ -1,0 +1,33 @@
+<md-dialog aria-label="Save" ng-cloak>
+    <form>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>Save</h2>
+                <span flex></span>
+                <button-base on-click="cancel()" aria-label="Cancel" icon="close" class="md-icon-button" fill="white" style="margin-right:-14px;"></button-base>
+            </div>
+        </md-toolbar>
+        <md-dialog-content style="min-height:100px;min-width:400px;">
+            <md-input-container flex>
+                <label>Name</label>
+                <input ng-model="name">
+            </md-input-container>
+            <md-autocomplete placeholder="Replace?" md-search-text="searchText" md-items="item in search()" md-selected-item="selectedItem" md-item-text="item.name + ' (' + (item.dateTime |date:'short')+ ')'" md-min-length="0">
+                <md-item-template>
+                    <span md-highlight-text="searchText" md-highlight-flags="^i">{{item.name}} ({{item.dateTime | date:'short'}})</span>
+                </md-item-template>
+                <md-not-found>
+                    No matches found for "{{searchText}}".
+                </md-not-found>
+            </md-autocomplete>
+        </md-dialog-content>
+        <div class="md-actions" layout="row">
+            <md-button ng-click="save()">
+                Save
+            </md-button>
+            <md-button ng-click="cancel()">
+                Cancel
+            </md-button>
+        </div>
+    </form>
+</md-dialog>

@@ -19,9 +19,12 @@
 
             this.saveConfig = function(track) {
                 console.log('saving config');
-                var step = track.steps[0];
-                if (track.running) {
-                    step = track.steps[track.current_step_idx];
+                var step = null;
+                if (track.steps.length) {
+                    step = track.steps[0];
+                    if (track.running) {
+                        step = track.steps[track.current_step_idx];
+                    }
                 }
                 arduinoService.set(track, step).then(function(response) {
                     console.log('set - success: ', response);
@@ -32,7 +35,10 @@
                 return this.playStep(track, 0).then(function() {
                     track.running = true;
                     track.pause = false;
-                    track.series = [];
+                    track.series.push({
+                        dateTime: new Date().getTime(),
+                        data: []
+                    });
                 });
             };
 
@@ -183,7 +189,7 @@
             }*/
 
             this.handleCurrTemp = function(track, step) {
-                if (angular.isDefined(step.temperature) && step.temperature != null && !step.run.timer && step.run.curr_temp >= step.temperature) {
+                if (angular.isDefined(step.temperature) && step.temperature !== null && !step.run.timer && step.run.curr_temp >= step.temperature) {
                     // start counting, play alarms
                     step.run.timer = timerService.new();
                     step.run.timer.start();
@@ -263,21 +269,24 @@
                             var sample = angular.extend({
                                 x: new Date()
                             }, angular.copy(track.status));
+                            sample._xDateTime = sample.x.getTime();
 
-                            if (track.series.length >= 2) {
-                                var lastSample = track.series[track.series.length - 1];
-                                var secondToLastSample = track.series[track.series.length - 2];
+                            var data = track.series[track.series.length - 1].data;
+
+                            if (data.length >= 2) {
+                                var lastSample = data[data.length - 1];
+                                var secondToLastSample = data[data.length - 2];
 
                                 if (sample.input === lastSample.input && sample.input === secondToLastSample.input &&
                                     sample.outputSSR === lastSample.outputSSR && sample.outputSSR === secondToLastSample.outputSSR) {
-                                    track.series[track.series.length - 1] = sample;
+                                    data[data.length - 1] = sample;
                                 } else {
-                                    track.series.push(sample);
+                                    data.push(sample);
                                 }
                             } else {
-                                track.series.push(sample);
+                                data.push(sample);
                             }
-                            //track.series.push(sample);
+                            //data.push(sample);
                         }
 
                         /*if (angular.isDefined(track.current_step_idx) && track.steps[track.current_step_idx].running) {*/
