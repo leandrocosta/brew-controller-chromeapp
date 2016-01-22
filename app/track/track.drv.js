@@ -138,7 +138,8 @@
 
                 vm.track.running = false;
                 vm.track.status = {};
-                vm.track.series = [];
+                vm.track.series = vm.track.series || [];
+                vm.track.steps = vm.track.steps || [];
                 vm.track.steps.forEach(function(step) {
                     step.running = false;
                     delete step.run;
