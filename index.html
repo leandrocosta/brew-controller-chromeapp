@@ -44,7 +44,6 @@
                                 <button-finish ng-if="$last && track.running" on-click="mainVm.finish(track)" my-disabled="{{!step.running}}">&lt;button-finish/&gt;</button-finish>
                             </step>
                             <div class="demo-mode-panel" ng-if="mainVm.appConfig.demoMode">
-                                Simulate input:
                                 <md-input-container>
                                     <label>Temperature</label>
                                     <input type="number" ng-model="mainVm.appConfig.mock[track.id].input" min="0" max="99.9" maxlength="4">
