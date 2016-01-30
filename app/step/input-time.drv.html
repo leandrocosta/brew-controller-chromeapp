@@ -1,7 +1,7 @@
 <div layout="row" layout-align="start center">
     <md-input-container>
         <label>Time</label>
-        <input ng-disabled="trackRunning" ng-model="time" ui-number-mask="0" maxlength="3" style="width:1.7em;">
+        <input ng-disabled="trackRunning" ng-model="time" ui-number-mask="0" maxlength="3" style="width:2em;">
         <div ng-messages ng-if="!trackRunning && !time">
             <div ng-message>unbounded</div>
         </div>

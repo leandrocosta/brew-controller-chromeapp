@@ -11,6 +11,10 @@ md-list-item {
     padding: 0 !important;
 }
 
+md-switch {
+    margin: 0;
+}
+
 track-head {
     margin-top: auto !important;
     margin-bottom: auto !important;
@@ -20,10 +24,41 @@ track-head {
     z-index: 1;
 }
 
+.track-tail {
+    position: absolute;
+    right: -6px;
+    text-align: right;
+}
 
-/*track-head.right-bordered {
-    border-right: 1px solid #ddd;
-}*/
+.track-tail button-base {
+    display: block;
+}
+
+.running-track md-chip.alarmed {
+    background-color: lightcoral;
+}
+
+.track-steps-container {
+    margin-left: -8px;
+    border-left: 1px solid;
+    border-color: #ddd;
+    padding-left: 6px;
+    overflow-x: auto;
+    min-height: 190px;
+}
+
+.track-status-bar {
+    padding-left: 4px;
+    margin-left: 109px;
+    border-left: 1px solid;
+    border-top: 1px solid;
+    border-color: #eee;
+    border-left-color: #ddd;
+}
+
+.track-status-bar i {
+    font-weight: bold;
+}
 
 step {
     margin-left: 8px;
@@ -40,25 +75,8 @@ timer-display {
     color: rgb(244, 67, 54);
 }
 
-
-/*.running-track {
-    background-color: rgba(240, 240, 240, .9);
-}*/
-
-md-whiteframe {
-    position: relative;
-    max-width: 290px;
-    background-color: rgba(255, 255, 255, .9);
-    z-index: 1;
-}
-
-
-/*md-input-container {
-    padding-bottom: 20px;
-}*/
-
 step md-input-container>input {
-    font-size: 2.2em;
+    font-size: 1.8em;
     color: #444!important;
     text-align: right;
     margin-bottom: 0 !important;
@@ -68,10 +86,26 @@ md-progress-linear {
     margin-top: 6px !important;
 }
 
+step-temperature {
+    margin-right: .5em;
+}
+
 step-temperature,
 step-time {
     position: relative;
 }
+
+md-whiteframe {
+    position: relative;
+    max-width: 270px !important;
+    background-color: rgba(255, 255, 255, .9);
+    z-index: 1;
+}
+
+
+/*md-input-container {
+    padding-bottom: 20px;
+}*/
 
 label {
     color: rgba(0, 0, 0, 0.54);
@@ -120,10 +154,6 @@ md-chip-template .md-caption {
     height: 24px !important;
 }
 
-.running-track md-chip.alarmed {
-    background-color: lightcoral;
-}
-
 .md-chip-content {
     padding-right: 0 !important;
 }
@@ -152,6 +182,25 @@ button-forward .md-button.md-fab {
     z-index: 2;
 }
 
+button-base.md-icon-button ng-md-icon {
+    top: 0 !important;
+}
+
+button-remove {
+    position: absolute;
+    right: -13px;
+    top: -6px;
+}
+
+button-icon ng-md-icon {
+    position: relative;
+    top: 6px;
+}
+
+.md-toolbar-tools button-base {
+    margin-right: -10px;
+}
+
 .md-button.md-fab {
     z-index: 0;
 }
@@ -172,11 +221,24 @@ md-autocomplete {
     min-width: 260px !important;
 }
 
-
-/*.layout-margin > * {
+.layout-margin > * {
     margin: 0;
 }
 
 .layout-padding > * {
     padding: 0;
-}*/
+}
+
+.demo-mode-panel {
+    margin-left: auto;
+    margin-right: 4em;
+}
+
+.demo-mode-panel input {
+    width: 2em;
+}
+
+.arduino-state-message {
+    min-width: 7em;
+    text-align: right;
+}

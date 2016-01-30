@@ -96,6 +96,7 @@
                 chartService.showDialog(ev, track);
             };
 
+            vm.setupsSearchText = '';
             vm.searchSetups = function() {
                 var filteredItems = vm.setups.filter(function(item) {
                     return item.name.toLowerCase().indexOf(vm.setupsSearchText.toLowerCase()) >= 0;
@@ -136,7 +137,7 @@
 
                         $scope.search = function() {
                             var filteredItems = vm.setups.filter(function(item) {
-                                return item.name.indexOf($scope.searchText) >= 0;
+                                return !$scope.searchText || item.name.indexOf($scope.searchText) >= 0;
                             });
                             return filteredItems;
                         };

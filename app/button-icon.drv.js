@@ -8,7 +8,7 @@
                     icon: '@',
                     fill: '@'
                 },
-                template: '<ng-md-icon icon="{{icon}}" style="fill:{{fill}};position:relative;top:6px;"></ng-md-icon>'
+                template: '<ng-md-icon icon="{{icon}}" style="fill:{{fill}};"></ng-md-icon>'
             };
         });
 })();

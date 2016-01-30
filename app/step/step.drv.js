@@ -31,7 +31,7 @@
                             });
                         } else {
                             vm.step.alarms.sort(function(a, b) {
-                                return b - a
+                                return b - a;
                             });
                         }
                     }

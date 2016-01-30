@@ -4,10 +4,10 @@
             <div class="md-toolbar-tools">
                 <h2>Track config</h2>
                 <span flex></span>
-                <button-base on-click="cancel()" aria-label="Cancel" icon="close" class="md-icon-button" fill="white" style="margin-right:-8px;"></button-base>
+                <button-base on-click="cancel()" aria-label="Cancel" icon="close" class="md-icon-button" fill="white"></button-base>
             </div>
         </md-toolbar>
-        <md-dialog-content style="max-width:600px;max-height:810px; ">
+        <md-dialog-content class="md-dialog-content">
             <p class="md-caption">Arduino pins</p>
             <div layout="row">
                 <md-input-container flex>
@@ -49,13 +49,13 @@
                 </md-input-container>
             </div>
         </md-dialog-content>
-        <div class="md-actions" layout="row">
+        <md-dialog-actions layout="row">
             <md-button ng-click="save()">
                 Save
             </md-button>
-            <md-button ng-click="cancel()" style="margin-right:20px;">
+            <md-button ng-click="cancel()">
                 Cancel
             </md-button>
-        </div>
+        </md-dialog-actions>
     </form>
 </md-dialog>

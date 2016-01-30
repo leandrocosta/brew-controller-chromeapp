@@ -1,7 +1,7 @@
 <div layout="row" layout-align="start center">
     <md-input-container>
-        <label>Temperature</label>
-        <input ng-disabled="trackRunning" ng-model="temperature" ui-number-mask="1" maxlength="4" style="width:2em;">
+        <label style="font-size:88%;">Temperature</label>
+        <input ng-disabled="trackRunning" ng-model="temperature" ui-number-mask="1" maxlength="4" style="width:2.8em;">
         <div ng-messages ng-if="!trackRunning && !temperature">
             <div ng-message>boiling</div>
         </div>

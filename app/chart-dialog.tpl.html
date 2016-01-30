@@ -4,10 +4,10 @@
             <div class="md-toolbar-tools">
                 <h2>Temperature</h2>
                 <span flex></span>
-                <button-base on-click="close()" aria-label="Close" icon="close" class="md-icon-button" fill="white" style="margin-right:-8px;"></button-base>
+                <button-base on-click="close()" aria-label="Close" icon="close" class="md-icon-button" fill="white"></button-base>
             </div>
         </md-toolbar>
-        <md-dialog-content style="width:900px;height:360px;overflow-x:auto;overflow-y:hidden;">
+        <md-dialog-content class="md-dialog-content" style="width:900px;height:360px;overflow-x:auto;overflow-y:hidden;">
             <linechart data="data" options="options" mode="" height="320"></linechart>
             <!--<linechart data="data" options="options" mode="" width="{{948+20*Math.floor(data.length/100)}}"></linechart>-->
             <!--<linechart data="data" options="options" mode="" width="{{948+20*Math.floor(((data[data.length-1].x-data[0].x)/1000)/100)}}"></linechart>-->
@@ -21,10 +21,10 @@
                 </md-button>
             </div>
         </md-dialog-content>
-        <div class="md-actions" layout="row">
+        <md-dialog-actions layout="row">
             <md-button ng-click="close()">
                 Close
             </md-button>
-        </div>
+        </md-dialog-actions>
     </form>
 </md-dialog>

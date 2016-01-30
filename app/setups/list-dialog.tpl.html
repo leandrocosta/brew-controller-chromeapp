@@ -4,10 +4,10 @@
             <div class="md-toolbar-tools">
                 <h2>Setups</h2>
                 <span flex></span>
-                <button-base on-click="close()" aria-label="Cancel" icon="close" class="md-icon-button" fill="white" style="margin-right:-14px;"></button-base>
+                <button-base on-click="close()" aria-label="Cancel" icon="close" class="md-icon-button" fill="white"></button-base>
             </div>
         </md-toolbar>
-        <md-dialog-content style="min-height:100px;min-width:400px;">
+        <md-dialog-content class="md-dialog-content" style="min-height:100px;min-width:400px;">
             <md-list>
                 <md-list-item ng-repeat="item in items | orderBy:'-dateTime'">
                     <p ng-click="open()">{{item.name}} ({{item.dateTime | date:'short'}})</p>
@@ -18,10 +18,10 @@
                 </md-list-item>
             </md-list>
         </md-dialog-content>
-        <div class="md-actions" layout="row">
+        <md-dialog-actions layout="row">
             <md-button ng-click="close()">
                 Close
             </md-button>
-        </div>
+        </md-dialog-actions>
     </form>
 </md-dialog>
