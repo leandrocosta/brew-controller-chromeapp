@@ -1,6 +1,6 @@
 (function() {
     angular.module('App')
-        .controller('MainCtrl', function($scope, $q, $mdDialog, appConfig, chromeStorage, dataService, arduinoService, chartService, generalConfigService) {
+        .controller('MainCtrl', function($scope, $q, $mdDialog, appConfig, chromeStorage, dataService, arduinoService, generalConfigService) {
             var vm = this;
             $scope.vm = vm;
 
@@ -40,7 +40,8 @@
                     }, {
                         id: 2,
                         config: {},
-                    }]
+                    }],
+                    logMessages: []
                 };
             }
 
@@ -49,6 +50,8 @@
             $scope.$watch('vm.currentSetup', function(newValue, oldValue) {
                 vm.tracks = vm.currentSetup.tracks;
             });
+
+            vm.arduinoState = arduinoService.state;
 
             vm.connectToArduino = function() {
                 arduinoService.connect();
@@ -62,44 +65,9 @@
                 return arduinoService.isConnected();
             };
 
-            vm.openGeneralConfigDialog = function(ev) {
-                generalConfigService.showDialog(ev);
-            };
-
-            vm.openTrackConfigDialog = function(ev, track) {
-                console.log('MainCtrl.openTrackConfigDialog(ev)', ev, track);
-
-                var outerScope = $scope;
-                var dialog = $mdDialog.show({
-                    templateUrl: 'app/track-config-dialog.tpl.html',
-                    controller: function($scope, $mdDialog) {
-                        $scope.config = angular.copy(track.config);
-
-                        $scope.save = function() {
-                            track.config = angular.copy($scope.config);
-                            if (arduinoService.isConnected() || vm.appConfig.demoMode) {
-                                outerScope.$broadcast('save-config', track);
-                            }
-                            $mdDialog.hide();
-                        };
-
-                        $scope.cancel = function() {
-                            $mdDialog.cancel();
-                        };
-                    },
-                    targetEvent: ev,
-                    clickOutsideToClose: true
-                });
-            };
-
-            vm.openChart = function(ev, track) {
-                chartService.showDialog(ev, track);
-            };
-
-            vm.setupsSearchText = '';
             vm.searchSetups = function() {
                 var filteredItems = vm.setups.filter(function(item) {
-                    return item.name.toLowerCase().indexOf(vm.setupsSearchText.toLowerCase()) >= 0;
+                    return !vm.setupsSearchText || item.name.toLowerCase().indexOf(vm.setupsSearchText.toLowerCase()) >= 0;
                 }).sort(function(a, b) {
                     return b.dateTime - a.dateTime;
                 });
@@ -124,6 +92,14 @@
                 } else {
                     resetCurrentSetup();
                 }
+            };
+
+            arduinoService.registerLogListener(function(msg) {
+                vm.currentSetup.logMessages.push(msg);
+            });
+
+            vm.openGeneralConfigDialog = function(ev) {
+                generalConfigService.showDialog(ev);
             };
 
             vm.openSaveDialog = function(ev) {
@@ -191,40 +167,18 @@
                 });
             };
 
-            vm.arduinoState = arduinoService.state;
-
-            vm.addStep = function(track, stepIdx) {
-                $scope.$broadcast('add-step', {
-                    track: track,
-                    stepIdx: stepIdx
+            vm.openLogDialog = function(ev) {
+                var dialog = $mdDialog.show({
+                    templateUrl: 'app/log-dialog.tpl.html',
+                    targetEvent: ev,
+                    clickOutsideToClose: true,
+                    controller: function($scope) {
+                        $scope.logMessages = vm.currentSetup.logMessages;
+                        $scope.close = function() {
+                            $mdDialog.hide();
+                        };
+                    }
                 });
-            };
-
-            vm.delStep = function(track, stepIdx) {
-                $scope.$broadcast('del-step', {
-                    track: track,
-                    stepIdx: stepIdx
-                });
-            };
-
-            vm.playPause = function(track) {
-                $scope.$broadcast('play-pause', track);
-            };
-
-            vm.stop = function(track) {
-                $scope.$broadcast('stop', track);
-            };
-
-            vm.forwardStep = function(track, stepIdx) {
-                $scope.$broadcast('forward-step', track, stepIdx);
-            };
-
-            vm.finish = function(track) {
-                $scope.$broadcast('finish', track);
-            };
-
-            vm.startTimer = function(track, stepIdx) {
-                $scope.$broadcast('start-timer', track, stepIdx);
             };
         });
 })();

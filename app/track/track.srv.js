@@ -289,7 +289,6 @@
                             //data.push(sample);
                         }
 
-                        /*if (angular.isDefined(track.current_step_idx) && track.steps[track.current_step_idx].running) {*/
                         if (track.running) {
                             var step = track.steps[track.current_step_idx];
                             if (step.running) {

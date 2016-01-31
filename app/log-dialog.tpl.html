@@ -1,0 +1,19 @@
+<md-dialog aria-label="Log message" ng-cloak>
+    <form>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>Log messages</h2>
+                <span flex></span>
+                <button-base on-click="close()" aria-label="Close" icon="close" class="md-icon-button" fill="white"></button-base>
+            </div>
+        </md-toolbar>
+        <md-dialog-content class="md-dialog-content" layout="column">
+            <p ng-repeat="msg in logMessages">{{msg}}</p>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <md-button ng-click="close()">
+                Close
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

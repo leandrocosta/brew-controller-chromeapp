@@ -8,8 +8,7 @@
                     onClick: '&',
                     myDisabled: '@'
                 },
-                template: '<button-base on-click="onClick()" my-disabled="{{myDisabled}}" aria-label="Stop" icon="stop" ' +
-                    'class="md-fab" fill="white"></button-base>'
+                template: '<button-base on-click="onClick()" my-disabled="{{myDisabled}}" aria-label="Stop" icon="stop" class="md-fab" fill="white"></button-base>'
             };
         });
 })();

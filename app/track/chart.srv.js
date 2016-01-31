@@ -8,7 +8,7 @@
     function ChartService($mdDialog) {
         this.showDialog = function(ev, track) {
             $mdDialog.show({
-                templateUrl: 'app/chart-dialog.tpl.html',
+                templateUrl: 'app/track/chart-dialog.tpl.html',
                 controller: function($scope, $mdDialog) {
                     $scope.series = track.series;
                     $scope.selectedSeries = $scope.series[$scope.series.length - 1];

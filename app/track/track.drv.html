@@ -1,0 +1,47 @@
+<div layout="column" layout-align="start start" flex>
+    <div layout="row" layout-align="start center" layout-fill>
+        <track-head layout="column" layout-align="center center" layout-padding layout-margin ng-class="{'right-bordered': ! vm.track.steps.length}">
+            <button-play-pause on-click="vm.playPause()" show-play="{{!vm.track.running || vm.track.paused}}" show-pause="{{vm.track.running && !vm.track.paused}}" my-disabled="{{(! vm.isConnected() && ! vm.appConfig.demoMode) || ! vm.track.steps.length}}"></button-play-pause>
+            <button-stop on-click="vm.stop()" my-disabled="{{!vm.track.running}}"></button-stop>
+        </track-head>
+        <button-add ng-if="!vm.track.running" on-click="vm.addStep(0)"></button-add>
+        <div class="track-steps-container" layout="row" layout-align="start center" layout-fill>
+            <step model="step" ng-repeat="step in vm.track.steps" layout="row" layout-align="center center">
+                <button-forward ng-if="!$first && vm.track.running" ng-click="vm.forwardStep($index)" my-disabled="{{!vm.track.steps[$index-1].running}}"></button-forward>
+                <md-whiteframe ng-class="{'md-whiteframe-z5':step.running,'md-whiteframe-z1':!step.running}" layout="column" layout-align="center start" layout-margin layout-padding flex>
+                    <div layout="row" layout-align="start center">
+                        <step-temperature>
+                            <input-temperature model="step.temperature" track-running="vm.track.running">temperature: {{step.temperature}}</input-temperature>
+                            <step-temperature-display ng-if="vm.track.running && step.run.curr_temp">
+                                {{step.running?'Now':'Last'}}: {{step.run.curr_temp|number:2}}{{step.run.curr_temp?' ºC':'-'}}
+                            </step-temperature-display>
+                            <progress-temperature ng-if="vm.track.running && step.temperature" step-temperature="{{step.temperature}}" init-time="{{step.run.init_time}}" init-temp="{{step.run.init_temp}}" curr-temp="{{step.run.curr_temp}}"></progress-temperature>
+                        </step-temperature>
+                        <step-time>
+                            <input-time model="step.time" track-running="vm.track.running">time: {{step.time}}</input-time>
+                            <timer-display ng-if="vm.track.running && step.run.curr_time">{{step.running?'Now':'Last'}}: {{step.run.curr_time| secondsToDateTime | date:'HH:mm:ss'}}</timer-display>
+                            <button-start-timer ng-if="step.running && step.time" on-click="vm.startTimer($index)" my-disabled="{{step.run.timer !== null}}"></button-start-timer>
+                        </step-time>
+                        <button-remove on-click="vm.delStep($index)"></button-remove>
+                    </div>
+                    <step-alarms alarms="step.alarms" alarmed-alarms="step.run.alarmed" readonly="{{vm.track.running}}" layout="column" layout-fill>alarms: {{step.alarms}}</step-alarms>
+                </md-whiteframe>
+                <button-add ng-if="!vm.track.running" on-click="vm.addStep($index+1)"></button-add>
+                <button-finish ng-if="$last && vm.track.running" on-click="vm.finish()" my-disabled="{{!step.running}}"></button-finish>
+            </step>
+            <div class="demo-mode-panel" ng-if="vm.appConfig.demoMode">
+                <md-input-container>
+                    <label>Temperature</label>
+                    <input type="number" ng-model="vm.appConfig.mock[vm.track.id].input" min="0" max="99.9" maxlength="4">
+                </md-input-container>
+            </div>
+            <div class="track-tail">
+                <button-base on-click="vm.openTrackConfigDialog($event)" aria-label="Configurações" icon="settings" class="md-icon-button" fill="dimgray"></button-base>
+                <button-base on-click="vm.openChart($event)" aria-label="Charts" icon="trending_up" class="md-icon-button" fill="dimgray"></button-base>
+            </div>
+        </div>
+    </div>
+    <div class="track-status-bar" layout-fill>
+        <span class="md-caption"><i>Status</i>: SSR pin: {{vm.track.status.pinSSR}} / DS18B20 pin: {{vm.track.status.pinDS18B20}} / kP: {{vm.track.status.kp | number}} / kI: {{vm.track.status.ki | number}} / kD: {{vm.track.status.kd | number}} / Sample Time: {{vm.track.status.sampleTime | number}} / Window size: {{vm.track.status.windowSize | number}} / Setpoint: {{vm.track.status.setpoint | number:2}} / Input: {{vm.track.status.input | number:2}} / Output: {{vm.track.status.output | number}} / running: {{vm.track.status.running ? 'YES':'NO'}} / outputSSR: {{vm.track.status.outputSSR ? 'HIGH':'LOW'}}</span>
+    </div>
+</div>

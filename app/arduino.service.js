@@ -22,22 +22,24 @@
         };
 
         connection.onConnect.addListener(function() {
-            console.log('connected to ' + that.config.usbPort + ' at ' + that.config.bitrate);
+            var msg = 'Connected to ' + that.config.usbPort + ' at ' + that.config.bitrate;
+            that.log(msg);
             that.state.desc = 'Connected!';
             promises["connect"].resolve();
             delete promises["connect"];
         });
 
         connection.onConnectError.addListener(function() {
-            console.log('onConnectError');
-            that.state.desc = 'Connection failed!';
+            var msg = 'Connection failed!';
+            that.log(msg);
+            that.state.desc = msg;
             promises["connect"].reject();
             delete promises["connect"];
         });
 
         connection.onError.addListener(function(error) {
-            console.log('onError', error);
-            console.log('changing connectionId from [' + connection.connectionId + '] to -1');
+            var msg = 'ERROR [' + error.toString() + '] - changing connectionId from [' + connection.connectionId + '] to -1';
+            that.log(msg);
             connection.connectionId = -1;
             that.state.desc = 'Connection error!';
         });
@@ -144,7 +146,7 @@
                     deferred.reject('Not connected to Arduino!');
                 }
             } else if (trackId >= 0) {
-                console.log('SEND: [' + str + ']');
+                that.log('SENT [' + str + ']');
                 connection.send(str + '\n');
                 promises[cmd][trackId] = deferred;
             } else {
@@ -153,10 +155,10 @@
             return deferred.promise;
         };
 
-        connection.onReadLine.addListener(function(line) {
-            console.log('RECV: [' + line + ']');
-            if (line.indexOf('LOG:') !== 0) {
-                var obj = JSON.parse(line);
+        connection.onReadLine.addListener(function(str) {
+            that.log('RECV: [' + str + ']');
+            if (str.indexOf('LOG:') !== 0) {
+                var obj = JSON.parse(str);
                 if (angular.isDefined(obj.cmd) && angular.isDefined(obj.success)) {
                     promises[obj.cmd][obj.idx].resolve(obj);
                     delete promises[obj.cmd][obj.idx];
@@ -187,6 +189,17 @@
         this.listeners = {};
         this.registerListener = function(trackId, handler) {
             that.listeners[trackId] = handler;
+        };
+
+        that.log = function(msg) {
+            console.log(msg);
+            if (that.logHandler) {
+                that.logHandler(msg);
+            }
+        };
+
+        this.registerLogListener = function(handler) {
+            that.logHandler = handler;
         };
 
         this.startDemo = function() {

@@ -3,11 +3,13 @@
         .module('App')
         .directive('myTrack', myTrack);
 
-    function myTrack(trackService) {
+    function myTrack($mdDialog, trackService, chartService) {
         return {
             scope: {
-                track: '=model'
+                track: '=model',
+                appConfig: '='
             },
+            templateUrl: 'app/track/track.drv.html',
             controllerAs: 'vm',
             bindToController: true,
             controller: function($scope, $element, $mdToast, trackService, toastQueue) {
@@ -82,56 +84,38 @@
                     toastQueue.add(toast);
                 };
 
-                $scope.$on('add-step', function(event, obj) {
-                    if (obj.track === vm.track) {
-                        vm.addStep(obj.stepIdx);
-                    }
-                });
+                vm.openTrackConfigDialog = function(ev) {
+                    var outerScope = $scope;
+                    var dialog = $mdDialog.show({
+                        templateUrl: 'app/track/config-dialog.tpl.html',
+                        controller: function($scope, $mdDialog) {
+                            $scope.config = angular.copy(vm.track.config);
 
-                $scope.$on('del-step', function(event, obj) {
-                    if (obj.track === vm.track) {
-                        vm.delStep(obj.stepIdx);
-                    }
-                });
+                            $scope.save = function() {
+                                vm.track.config = angular.copy($scope.config);
+                                if (arduinoService.isConnected() || vm.appConfig.demoMode) {
+                                    vm.saveConfig();
+                                }
+                                $mdDialog.hide();
+                            };
 
-                $scope.$on('play-pause', function(event, t) {
-                    if (t === vm.track) {
-                        vm.playPause();
-                    }
-                });
+                            $scope.cancel = function() {
+                                $mdDialog.cancel();
+                            };
+                        },
+                        targetEvent: ev,
+                        clickOutsideToClose: true
+                    });
+                };
 
-                $scope.$on('stop', function(event, t) {
-                    if (t === vm.track) {
-                        vm.stop();
-                    }
-                });
-
-                $scope.$on('forward-step', function(event, t, s) {
-                    if (t === vm.track) {
-                        vm.forwardStep(s);
-                    }
-                });
-
-                $scope.$on('finish', function(event, t) {
-                    if (t === vm.track) {
-                        vm.finish();
-                    }
-                });
-
-                $scope.$on('start-timer', function(event, t, s) {
-                    if (t === vm.track) {
-                        vm.startTimer(s);
-                    }
-                });
+                vm.openChart = function(ev) {
+                    chartService.showDialog(ev, vm.track);
+                };
 
                 $scope.$on('save-config', function(event, t) {
                     if (t === vm.track) {
                         vm.saveConfig();
                     }
-                });
-
-                $scope.$on('alarm', function(event, obj) {
-                    console.log('track directive - on alarm', obj);
                 });
 
                 trackService.registerListener(vm.track);
@@ -145,6 +129,6 @@
                     delete step.run;
                 });
             }
-        }
+        };
     }
 })();

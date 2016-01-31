@@ -11,55 +11,7 @@
 <body layout="column" ng-controller="MainCtrl as mainVm">
     <md-list>
         <md-list-item ng-repeat="track in mainVm.tracks" ng-class="{'running-track':track.running}">
-            <my-track model="track" layout="row" layout-align="center center" flex>
-                <div layout="column" layout-align="start start" flex>
-                    <div layout="row" layout-align="start center" layout-fill>
-                        <track-head layout="column" layout-align="center center" layout-padding layout-margin ng-class="{'right-bordered': ! track.steps.length}">
-                            <button-play-pause on-click="mainVm.playPause(track)" show-play="{{!track.running || track.paused}}" show-pause="{{track.running && !track.paused}}" my-disabled="{{(! mainVm.isConnected() && ! mainVm.appConfig.demoMode) || ! track.steps.length}}">&lt;button-play-pause/&gt;</button-play-pause>
-                            <button-stop on-click="mainVm.stop(track)" my-disabled="{{!track.running}}">&lt;button-stop/&gt;</button-stop>
-                        </track-head>
-                        <button-add ng-if="!track.running" on-click="mainVm.addStep(track, 0)">&lt;button-add/&gt;</button-add>
-                        <div class="track-steps-container" layout="row" layout-align="start center" layout-fill>
-                            <step model="step" ng-repeat="step in track.steps" layout="row" layout-align="center center">
-                                <button-forward ng-if="!$first && track.running" ng-click="mainVm.forwardStep(track, $index)" my-disabled="{{!track.steps[$index-1].running}}"></button-forward>
-                                <md-whiteframe ng-class="{'md-whiteframe-z5':step.running,'md-whiteframe-z1':!step.running}" layout="column" layout-align="center start" layout-margin layout-padding flex>
-                                    <div layout="row" layout-align="start center">
-                                        <step-temperature>
-                                            <input-temperature model="step.temperature" track-running="track.running">temperature: {{step.temperature}}</input-temperature>
-                                            <step-temperature-display ng-if="track.running && step.run.curr_temp">
-                                                {{step.running?'Now':'Last'}}: {{step.run.curr_temp|number:2}}{{step.run.curr_temp?' ºC':'-'}}
-                                            </step-temperature-display>
-                                            <progress-temperature ng-if="track.running && step.temperature" step-temperature="{{step.temperature}}" init-time="{{step.run.init_time}}" init-temp="{{step.run.init_temp}}" curr-temp="{{step.run.curr_temp}}"></progress-temperature>
-                                        </step-temperature>
-                                        <step-time>
-                                            <input-time model="step.time" track-running="track.running">time: {{step.time}}</input-time>
-                                            <timer-display ng-if="track.running && step.run.curr_time">{{step.running?'Now':'Last'}}: {{step.run.curr_time| secondsToDateTime | date:'HH:mm:ss'}}</timer-display>
-                                            <button-start-timer ng-if="step.running && step.time" on-click="mainVm.startTimer(track, $index)" my-disabled="{{step.run.timer !== null}}"></button-start-timer>
-                                        </step-time>
-                                        <button-remove on-click="mainVm.delStep(track, $index)">&lt;button-remove/&gt;</button-remove>
-                                    </div>
-                                    <step-alarms alarms="step.alarms" alarmed-alarms="step.run.alarmed" readonly="{{track.running}}" layout="column" layout-fill>alarms: {{step.alarms}}</step-alarms>
-                                </md-whiteframe>
-                                <button-add ng-if="!track.running" on-click="mainVm.addStep(track, $index+1)">&lt;button-add/&gt;</button-add>
-                                <button-finish ng-if="$last && track.running" on-click="mainVm.finish(track)" my-disabled="{{!step.running}}">&lt;button-finish/&gt;</button-finish>
-                            </step>
-                            <div class="demo-mode-panel" ng-if="mainVm.appConfig.demoMode">
-                                <md-input-container>
-                                    <label>Temperature</label>
-                                    <input type="number" ng-model="mainVm.appConfig.mock[track.id].input" min="0" max="99.9" maxlength="4">
-                                </md-input-container>
-                            </div>
-                            <div class="track-tail">
-                                <button-base on-click="mainVm.openTrackConfigDialog($event, track)" aria-label="Configurações" icon="settings" class="md-icon-button" fill="dimgray"></button-base>
-                                <button-base on-click="mainVm.openChart($event, track)" aria-label="Charts" icon="trending_up" class="md-icon-button" fill="dimgray"></button-base>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="track-status-bar" layout-fill>
-                        <span class="md-caption"><i>Status</i>: SSR pin: {{track.status.pinSSR}} / DS18B20 pin: {{track.status.pinDS18B20}} / kP: {{track.status.kp | number}} / kI: {{track.status.ki | number}} / kD: {{track.status.kd | number}} / Sample Time: {{track.status.sampleTime | number}} / Window size: {{track.status.windowSize | number}} / Setpoint: {{track.status.setpoint | number:2}} / Input: {{track.status.input | number:2}} / Output: {{track.status.output | number}} / running: {{track.status.running ? 'YES':'NO'}} / outputSSR: {{track.status.outputSSR ? 'HIGH':'LOW'}}</span>
-                    </div>
-                </div>
-            </my-track>
+            <my-track model="track" app-config="mainVm.appConfig" layout="row" layout-align="center center" flex></my-track>
             <md-divider></md-divider>
         </md-list-item>
     </md-list>
@@ -79,6 +31,7 @@
             <button-base on-click="mainVm.openSaveDialog($event)" icon="save" aria-label="Save" class="md-icon-button" fill="dimgray"></button-base>
             <button-base on-click="mainVm.openListDialog($event)" icon="list" aria-label="Setups" class="md-icon-button" fill="dimgray"></button-base>
             <button-base on-click="mainVm.openGeneralConfigDialog($event)" icon="settings" aria-label="Config" class="md-icon-button" fill="dimgray"></button-base>
+            <button-base on-click="mainVm.openLogDialog($event)" icon="insert_drive_file" aria-label="Log messages" class="md-icon-button" fill="dimgray"></button-base>
             <button-base ng-if="! mainVm.isConnected()" on-click="mainVm.connectToArduino()" icon="usb" aria-label="Connect to Arduino" class="md-icon-button" fill="dimgray"></button-base>
             <button-base ng-if="mainVm.isConnected()" on-click="mainVm.disconnectFromArduino()" icon="usb" aria-label="Disconnect from Arduino" class="md-icon-button" fill="deepskyblue"></button-base>
             <div class="arduino-state-message">{{mainVm.arduinoState.desc}}</div>
@@ -100,7 +53,6 @@
     <script src="app/app.js"></script>
     <script src="app/arduino.service.js"></script>
     <script src="app/data.srv.js"></script>
-    <script src="app/chart.srv.js"></script>
     <script src="app/general-config.srv.js"></script>
     <script src="app/main.ctrl.js"></script>
     <script src="app/timer.service.js"></script>
@@ -124,6 +76,7 @@
     <script src="app/track/button-stop.drv.js"></script>
     <script src="app/track/alarms/alarm.srv.js"></script>
     <script src="app/track/alarms/toast-queue.srv.js"></script>
+    <script src="app/track/chart.srv.js"></script>
 </body>
 
 </html>
