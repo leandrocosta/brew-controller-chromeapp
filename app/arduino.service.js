@@ -125,7 +125,7 @@
         this.getTemperature = function(track) { // E 0
             var str = ['E', track.id].join(' ');
             if (appConfig.demoMode) {
-                console.log('FAKE SEND: ' + str + ']');
+                console.log('FAKESEND: ' + str + ']');
                 var deferred = $q.defer();
                 deferred.resolve({
                     cmd: 'temp',
@@ -146,7 +146,7 @@
                     deferred.reject('Not connected to Arduino!');
                 }
             } else if (trackId >= 0) {
-                that.log('SENT [' + str + ']');
+                that.log('SENT:[' + str + ']');
                 connection.send(str + '\n');
                 promises[cmd][trackId] = deferred;
             } else {
@@ -156,7 +156,7 @@
         };
 
         connection.onReadLine.addListener(function(str) {
-            that.log('RECV: [' + str + ']');
+            that.log('RECV:[' + str + ']');
             if (str.indexOf('LOG:') !== 0) {
                 var obj = JSON.parse(str);
                 if (angular.isDefined(obj.cmd) && angular.isDefined(obj.success)) {
@@ -292,8 +292,6 @@ SerialConnection.prototype.onConnectComplete = function(connectionInfo) {
 };
 
 SerialConnection.prototype.onReceive = function(receiveInfo) {
-    //console.log('SerialConnection.prototype.onReceive', receiveInfo);
-
     if (receiveInfo.connectionId !== this.connectionId) {
         return;
     }
@@ -303,10 +301,11 @@ SerialConnection.prototype.onReceive = function(receiveInfo) {
     this.lineBuffer += dataBuffer;
 
     //console.log('lineBuffer:', this.lineBuffer);
+    //console.log('SerialConnection.prototype.onReceive', receiveInfo, dataBuffer, this.lineBuffer);
 
     var index;
     while ((index = this.lineBuffer.indexOf('\n')) >= 0) {
-        var line = this.lineBuffer.substr(0, index + 1);
+        var line = this.lineBuffer.substr(0, index);
         this.onReadLine.dispatch(line);
         this.lineBuffer = this.lineBuffer.substr(index + 1);
     }

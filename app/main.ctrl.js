@@ -48,7 +48,8 @@
             resetCurrentSetup();
 
             $scope.$watch('vm.currentSetup', function(newValue, oldValue) {
-                vm.tracks = vm.currentSetup.tracks;
+                vm.tracks = vm.currentSetup.tracks || [];
+                vm.logMessages = vm.currentSetup.logMessages || [];
             });
 
             vm.arduinoState = arduinoService.state;
@@ -95,7 +96,7 @@
             };
 
             arduinoService.registerLogListener(function(msg) {
-                vm.currentSetup.logMessages.push(msg);
+                vm.logMessages.push(msg);
             });
 
             vm.openGeneralConfigDialog = function(ev) {
@@ -122,12 +123,14 @@
                             if ($scope.selectedItem) {
                                 $scope.selectedItem.name = $scope.name;
                                 $scope.selectedItem.tracks = angular.copy(vm.tracks);
+                                $scope.selectedItem.logMessages = angular.copy(vm.logMessages);
                                 vm.selectedSetup = $scope.selectedItem;
                             } else {
                                 var setup = {
                                     name: $scope.name,
                                     dateTime: new Date().getTime(),
                                     tracks: angular.copy(vm.tracks),
+                                    logMessages: angular.copy(vm.logMessages)
                                 };
                                 vm.setups.push(setup);
                                 vm.selectedSetup = setup;
@@ -172,8 +175,9 @@
                     templateUrl: 'app/log-dialog.tpl.html',
                     targetEvent: ev,
                     clickOutsideToClose: true,
-                    controller: function($scope) {
-                        $scope.logMessages = vm.currentSetup.logMessages;
+                    controller: function($scope, $mdDialog) {
+                        $scope.logMessages = vm.logMessages;
+                        console.log('openLogDialog', $scope.logMessages);
                         $scope.close = function() {
                             $mdDialog.hide();
                         };

@@ -11,7 +11,7 @@
 <body layout="column" ng-controller="MainCtrl as mainVm">
     <md-list>
         <md-list-item ng-repeat="track in mainVm.tracks" ng-class="{'running-track':track.running}">
-            <my-track model="track" app-config="mainVm.appConfig" layout="row" layout-align="center center" flex></my-track>
+            <my-track model="track" app-config="mainVm.appConfig" arduino-connected="{{mainVm.isConnected()}}" layout="row" layout-align="center center" flex></my-track>
             <md-divider></md-divider>
         </md-list-item>
     </md-list>

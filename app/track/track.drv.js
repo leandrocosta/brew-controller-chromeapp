@@ -7,7 +7,8 @@
         return {
             scope: {
                 track: '=model',
-                appConfig: '='
+                appConfig: '=',
+                arduinoConnected: '@'
             },
             templateUrl: 'app/track/track.drv.html',
             controllerAs: 'vm',
@@ -93,7 +94,7 @@
 
                             $scope.save = function() {
                                 vm.track.config = angular.copy($scope.config);
-                                if (arduinoService.isConnected() || vm.appConfig.demoMode) {
+                                if (vm.arduinoConnected || vm.appConfig.demoMode) {
                                     vm.saveConfig();
                                 }
                                 $mdDialog.hide();
@@ -111,12 +112,6 @@
                 vm.openChart = function(ev) {
                     chartService.showDialog(ev, vm.track);
                 };
-
-                $scope.$on('save-config', function(event, t) {
-                    if (t === vm.track) {
-                        vm.saveConfig();
-                    }
-                });
 
                 trackService.registerListener(vm.track);
 
