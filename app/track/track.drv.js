@@ -17,7 +17,9 @@
                 var vm = this;
 
                 $scope.$watch('vm.track', function(newValue, oldValue) {
-                    vm.saveConfigIfNecessary();
+                    if (angular.isDefined(vm.track.config.pinSSR)) {
+                        vm.saveConfigIfConnected();
+                    }
                 });
 
                 vm.isArduinoConnected = function() {
@@ -83,7 +85,7 @@
                     trackService.saveConfig(vm.track);
                 };
 
-                vm.saveConfigIfNecessary = function() {
+                vm.saveConfigIfConnected = function() {
                     if (vm.isArduinoConnected() || vm.appConfig.demoMode) {
                         vm.saveConfig();
                     }
@@ -109,7 +111,7 @@
 
                             $scope.save = function() {
                                 vm.track.config = angular.copy($scope.config);
-                                vm.saveConfigIfNecessary();
+                                vm.saveConfigIfConnected();
                                 $mdDialog.hide();
                             };
 
