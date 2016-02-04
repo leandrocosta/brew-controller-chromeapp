@@ -45,6 +45,9 @@
             this.playStep = function(track, stepIdx) {
                 var step = track.steps[stepIdx];
 
+                delete step.run;
+                track.current_step_idx = stepIdx;
+
                 if (step.temperature) {
                     return arduinoService.set(track, step).then(function(response) {
                         console.log('set - success', response);
@@ -61,7 +64,6 @@
                                 };
                                 step.running = true;
                                 step.paused = false;
-                                track.current_step_idx = stepIdx;
                             });
                         });
                     });
@@ -78,7 +80,6 @@
                         };
                         step.running = true;
                         step.paused = false;
-                        track.current_step_idx = stepIdx;
                     });
                 }
             };
