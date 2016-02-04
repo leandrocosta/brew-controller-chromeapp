@@ -77,7 +77,7 @@
             ].join(' ');
 
             if (appConfig.demoMode) {
-                console.log('FAKESEND:[' + str + ']');
+                console.log('FAKESEND[' + str + ']');
                 var deferred = $q.defer();
                 deferred.resolve({
                     cmd: 'set',
@@ -93,7 +93,7 @@
         this.play = function(track) { // P 0
             var str = ['P', track.id].join(' ');
             if (appConfig.demoMode) {
-                console.log('FAKESEND:[' + str + ']');
+                console.log('FAKESEND[' + str + ']');
                 var deferred = $q.defer();
                 deferred.resolve({
                     cmd: 'play',
@@ -109,7 +109,7 @@
         this.stop = function(track) { // T 0
             var str = ['T', track.id].join(' ');
             if (appConfig.demoMode) {
-                console.log('FAKESEND:[' + str + ']');
+                console.log('FAKESEND[' + str + ']');
                 var deferred = $q.defer();
                 deferred.resolve({
                     cmd: 'stop',
@@ -125,7 +125,7 @@
         this.getTemperature = function(track) { // E 0
             var str = ['E', track.id].join(' ');
             if (appConfig.demoMode) {
-                console.log('FAKESEND:[' + str + ']');
+                console.log('FAKESEND[' + str + ']');
                 var deferred = $q.defer();
                 deferred.resolve({
                     cmd: 'temp',
@@ -146,7 +146,7 @@
                     deferred.reject('Not connected to Arduino!');
                 }
             } else if (trackId >= 0) {
-                that.log('SEND:[' + str + ']');
+                that.log('SEND[' + str + ']');
                 connection.send(str + '\n');
                 promises[cmd][trackId] = deferred;
             } else {
@@ -156,7 +156,7 @@
         };
 
         connection.onReadLine.addListener(function(str) {
-            that.log('RECV:[' + str + ']');
+            that.log('RECV[' + str + ']');
             if (str.indexOf('LOG:') !== 0) {
                 var obj = JSON.parse(str);
                 if (angular.isDefined(obj.cmd) && angular.isDefined(obj.success)) {
