@@ -1,7 +1,7 @@
 <div layout="column" layout-align="start start" flex>
     <div layout="row" layout-align="start center" layout-fill>
         <track-head layout="column" layout-align="center center" layout-padding layout-margin ng-class="{'right-bordered': ! vm.track.steps.length}">
-            <button-play-pause on-click="vm.playPause()" show-play="{{!vm.track.running || vm.track.paused}}" show-pause="{{vm.track.running && !vm.track.paused}}" my-disabled="{{(! vm.arduinoConnected && ! vm.appConfig.demoMode) || ! vm.track.steps.length}}"></button-play-pause>
+            <button-play-pause on-click="vm.playPause()" show-play="{{!vm.track.running || vm.track.paused}}" show-pause="{{vm.track.running && !vm.track.paused}}" my-disabled="{{(! vm.isArduinoConnected() && ! vm.appConfig.demoMode) || ! vm.track.steps.length}}"></button-play-pause>
             <button-stop on-click="vm.stop()" my-disabled="{{!vm.track.running}}"></button-stop>
         </track-head>
         <button-add ng-if="!vm.track.running" on-click="vm.addStep(0)"></button-add>

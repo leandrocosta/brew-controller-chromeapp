@@ -16,6 +16,14 @@
             controller: function($scope, $element, $mdToast, trackService, toastQueue) {
                 var vm = this;
 
+                $scope.$watch('vm.track', function(newValue, oldValue) {
+                    vm.saveConfigIfNecessary();
+                });
+
+                vm.isArduinoConnected = function() {
+                    return vm.arduinoConnected === 'true';
+                };
+
                 vm.addStep = function(index) {
                     trackService.addStep(vm.track, index);
                 };
@@ -71,7 +79,14 @@
                 };
 
                 vm.saveConfig = function() {
+                    console.log('vm.saveConfig', vm.track);
                     trackService.saveConfig(vm.track);
+                };
+
+                vm.saveConfigIfNecessary = function() {
+                    if (vm.isArduinoConnected() || vm.appConfig.demoMode) {
+                        vm.saveConfig();
+                    }
                 };
 
                 vm.alarm = function(value) {
@@ -94,9 +109,7 @@
 
                             $scope.save = function() {
                                 vm.track.config = angular.copy($scope.config);
-                                if (vm.arduinoConnected || vm.appConfig.demoMode) {
-                                    vm.saveConfig();
-                                }
+                                vm.saveConfigIfNecessary();
                                 $mdDialog.hide();
                             };
 
@@ -122,6 +135,10 @@
                 vm.track.steps.forEach(function(step) {
                     step.running = false;
                     delete step.run;
+                });
+
+                $scope.$on('save-config', function(event) {
+                    vm.saveConfig();
                 });
             }
         };

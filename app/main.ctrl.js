@@ -43,19 +43,18 @@
                     }],
                     logMessages: []
                 };
+                vm.tracks = vm.currentSetup.tracks || [];
+                vm.logMessages = vm.currentSetup.logMessages || [];
             }
 
             resetCurrentSetup();
 
-            $scope.$watch('vm.currentSetup', function(newValue, oldValue) {
-                vm.tracks = vm.currentSetup.tracks || [];
-                vm.logMessages = vm.currentSetup.logMessages || [];
-            });
-
             vm.arduinoState = arduinoService.state;
 
             vm.connectToArduino = function() {
-                arduinoService.connect();
+                arduinoService.connect().then(function() {
+                    $scope.$broadcast('save-config');
+                });
             };
 
             vm.disconnectFromArduino = function() {
@@ -77,7 +76,6 @@
 
             vm.onSelectedSetupChange = function() {
                 var setup = vm.selectedSetup;
-                console.log('onSelectedSetupChange', setup);
 
                 if (setup) {
                     vm.currentSetup = angular.copy(setup);
@@ -90,9 +88,14 @@
                             });
                         });
                     });
+                    vm.tracks = vm.currentSetup.tracks || [];
+                    vm.logMessages = vm.currentSetup.logMessages || [];
                 } else {
                     resetCurrentSetup();
                 }
+
+                //console.log(vm.tracks[0]);
+                //$scope.$broadcast('save-config');
             };
 
             arduinoService.registerLogListener(function(msg) {
@@ -177,7 +180,6 @@
                     clickOutsideToClose: true,
                     controller: function($scope, $mdDialog) {
                         $scope.logMessages = vm.logMessages;
-                        console.log('openLogDialog', $scope.logMessages);
                         $scope.close = function() {
                             $mdDialog.hide();
                         };
