@@ -6,9 +6,9 @@
     <meta name="viewport" content="initial-scale=1" />
     <link rel="stylesheet" href="vendor/angular-material.min.css">
     <link rel="stylesheet" href="style.css">
-</head>
+</head>     
 
-<body layout="column" ng-controller="MainCtrl as mainVm">
+<body layout="column" ng-controller="MainCtrl as mainVm" ng-style="{'border-top':mainVm.borderTop,'border-color':mainVm.borderColor}">
     <md-list>
         <md-list-item ng-repeat="track in mainVm.tracks" ng-class="{'running-track':track.running}">
             <my-track model="track" app-config="mainVm.appConfig" arduino-connected="{{mainVm.isConnected()}}" layout="row" layout-align="center center" flex></my-track>

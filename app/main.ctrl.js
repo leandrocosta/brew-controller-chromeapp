@@ -4,6 +4,9 @@
             var vm = this;
             $scope.vm = vm;
 
+            vm.borderTop = navigator.platform === 'Win32' ? '1px solid':undefined;
+            vm.boderColor = navigator.platform === 'Win32' ? 'rgba(0,0,0,.12)':undefined;
+
             vm.appConfig = appConfig;
 
             $scope.$watch('vm.appConfig.demoMode', function(newValue, oldValue) {
