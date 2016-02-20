@@ -1,6 +1,6 @@
 (function() {
     angular.module('App')
-        .controller('MainCtrl', function($scope, $q, $mdDialog, appConfig, chromeStorage, dataService, arduinoService, generalConfigService) {
+        .controller('MainCtrl', function($scope, $q, $mdDialog, appConfig, chromeStorage, arduinoService, generalConfigService) {
             var vm = this;
             $scope.vm = vm;
 
