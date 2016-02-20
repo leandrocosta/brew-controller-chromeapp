@@ -211,18 +211,18 @@
             this.demoLoop = $interval(function() {
                 angular.forEach(that.listeners, function(handler, key) {
                     handler({
-                        pinSSR: null,
-                        pinDS18B20: null,
+                        pSSR: null,
+                        pDS18B20: null,
                         kp: null,
                         ki: null,
                         kd: null,
-                        input: appConfig.mock[key].input,
-                        output: null,
-                        setpoint: null,
-                        sampleTime: null,
-                        windowSize: null,
-                        running: null,
-                        outputSSR: (new Date() % 2 ? 1 : 0)
+                        i: appConfig.mock[key].input,
+                        o: null,
+                        sp: null,
+                        st: null,
+                        ws: null,
+                        r: null,
+                        oSSR: (new Date() % 2 ? 1 : 0)
                     });
                 });
             }, 1000);

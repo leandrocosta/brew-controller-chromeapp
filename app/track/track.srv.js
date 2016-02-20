@@ -248,18 +248,18 @@
             this.registerListener = function(track) {
                 arduinoService.registerListener(track.id, function(obj) {
                     $timeout(function() {
-                        track.status.pinSSR = obj.pinSSR;
-                        track.status.pinDS18B20 = obj.pinDS18B20;
+                        track.status.pinSSR = obj.pSSR;
+                        track.status.pinDS18B20 = obj.pDS18B20;
                         track.status.kp = obj.kp;
                         track.status.ki = obj.ki;
                         track.status.kd = obj.kd;
-                        track.status.input = obj.input;
-                        track.status.output = obj.output;
-                        track.status.setpoint = obj.setpoint;
-                        track.status.sampleTime = obj.sampleTime;
-                        track.status.windowSize = obj.windowSize;
-                        track.status.running = obj.running;
-                        track.status.outputSSR = obj.outputSSR;
+                        track.status.input = obj.i;
+                        track.status.output = obj.o;
+                        track.status.setpoint = obj.sp;
+                        track.status.sampleTime = obj.st;
+                        track.status.windowSize = obj.ws;
+                        track.status.running = obj.r;
+                        track.status.outputSSR = obj.oSSR;
 
                         // bug: sometimes DS18B20 returns -127 as temperature, we don't want to see these values in graph
                         if (track.status.input < 0) {
