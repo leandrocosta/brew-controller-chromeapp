@@ -11,6 +11,7 @@
             <md-list>
                 <md-list-item ng-repeat="item in items | orderBy:'-dateTime'">
                     <p ng-click="open()">{{item.name}} ({{item.dateTime | date:'short'}})</p>
+                    <md-button ng-click="clone(item)" class="md-primary">Clone</md-button>
                     <md-button ng-click="delete(item)" class="md-primary">Delete</md-button>
                 </md-list-item>
                 <md-list-item ng-if="!items.length">

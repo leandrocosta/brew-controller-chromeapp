@@ -140,7 +140,7 @@
                 });
 
                 $scope.$on('save-config', function(event) {
-                    vm.saveConfig();
+                    vm.saveConfigIFConnected();
                 });
             }
         };

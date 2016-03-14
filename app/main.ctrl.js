@@ -163,6 +163,17 @@
                     controller: function($scope, $mdDialog) {
                         $scope.items = vm.setups;
 
+                        $scope.clone = function(item) {
+                            console.log('clone', item);
+                            resetCurrentSetup();
+                            angular.merge(vm.tracks, item.tracks);
+                            angular.forEach(vm.tracks, function(track) {
+                                track.series = [];
+                            });
+                            vm.selectedSetup = undefined;
+                            $mdDialog.hide();
+                        };
+
                         $scope.delete = function(item) {
                             vm.setups.splice(vm.setups.indexOf(item), 1);
                         };

@@ -10,7 +10,7 @@
         <md-dialog-content class="md-dialog-content" style="width:900px;height:360px;overflow-x:auto;overflow-y:hidden;">
             <linechart data="data" options="options" mode="" height="320"></linechart>
             <div layout="row">
-                <md-select ng-model="selectedSeries" ng-model-options="{trackBy: '$value.dateTime'}" ng-change="data = selectedSeries?selectedSeries.data:undefined" flex>
+                <md-select aria-label="Series" ng-model="selectedSeries" ng-model-options="{trackBy: '$value.dateTime'}" ng-change="data = selectedSeries?selectedSeries.data:undefined" flex>
                     <md-option ng-repeat="s in series|orderBy:'-dateTime'" ng-value="s">{{s.dateTime|date:'short'}}</md-option>
                 </md-select>
                 <md-button ng-click="deleteSeries(selectedSeries)">
