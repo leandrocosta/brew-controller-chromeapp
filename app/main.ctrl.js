@@ -93,12 +93,10 @@
                     });
                     vm.tracks = vm.currentSetup.tracks || [];
                     vm.logMessages = vm.currentSetup.logMessages || [];
+                    $scope.$broadcast('save-config');
                 } else {
                     resetCurrentSetup();
                 }
-
-                //console.log(vm.tracks[0]);
-                //$scope.$broadcast('save-config');
             };
 
             arduinoService.registerLogListener(function(msg) {
