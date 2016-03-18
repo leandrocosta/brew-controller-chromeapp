@@ -5,7 +5,7 @@
             $scope.vm = vm;
 
             vm.borderTop = navigator.platform === 'Win32' ? '1px solid':undefined;
-            vm.boderColor = navigator.platform === 'Win32' ? 'rgba(0,0,0,.12)':undefined;
+            vm.borderColor = navigator.platform === 'Win32' ? 'rgba(0,0,0,.12)':undefined;
 
             vm.appConfig = appConfig;
 
