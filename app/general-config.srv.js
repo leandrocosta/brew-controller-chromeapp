@@ -38,6 +38,9 @@
 
                     getDevices();
                 },
+                onComplete: function() {
+                    angular.element(document.body).find('md-dialog').find('input')[0].focus();
+                },
                 targetEvent: ev,
                 clickOutsideToClose: true
             });
