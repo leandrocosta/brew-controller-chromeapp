@@ -8,7 +8,10 @@ label {
 }
 
 md-list {
+    margin-bottom:40px;
     padding:0!important;
+    overflow-y:auto;
+    overflow-x:hidden;
 }
 
 md-list-item {
@@ -48,7 +51,7 @@ track-head {
     border-left:1px solid;
     border-color:#ddd;
     margin-left:-8px;
-    min-height:200px;
+    min-height:190px;
     overflow-x:auto;
     padding-left:6px;
 }
