@@ -22,7 +22,7 @@
         };
 
         connection.onConnect.addListener(function() {
-            var msg = 'Connected to ' + that.config.usbPort + ' at ' + that.config.bitrate;
+            var msg = 'CONNECTED TO ' + that.config.usbPort + ' at ' + that.config.bitrate;
             that.log(msg);
             that.state.desc = 'Connected!';
             promises["connect"].resolve();
@@ -30,9 +30,9 @@
         });
 
         connection.onConnectError.addListener(function() {
-            var msg = 'Connection failed!';
+            var msg = 'CONNECTION FAILED!';
             that.log(msg);
-            that.state.desc = msg;
+            that.state.desc = 'Connection failed!';
             promises["connect"].reject();
             delete promises["connect"];
         });

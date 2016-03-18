@@ -1,11 +1,11 @@
 (function() {
     angular.module('App')
-        .controller('MainCtrl', function($scope, $q, $mdDialog, appConfig, chromeStorage, arduinoService, generalConfigService) {
+        .controller('MainCtrl', function($scope, $timeout, $q, $mdDialog, appConfig, chromeStorage, arduinoService, generalConfigService) {
             var vm = this;
             $scope.vm = vm;
 
-            vm.borderTop = navigator.platform === 'Win32' ? '1px solid':undefined;
-            vm.borderColor = navigator.platform === 'Win32' ? 'rgba(0,0,0,.12)':undefined;
+            vm.borderTop = navigator.platform === 'Win32' ? '1px solid' : undefined;
+            vm.borderColor = navigator.platform === 'Win32' ? 'rgba(0,0,0,.12)' : undefined;
 
             vm.appConfig = appConfig;
 
@@ -93,7 +93,9 @@
                     });
                     vm.tracks = vm.currentSetup.tracks || [];
                     vm.logMessages = vm.currentSetup.logMessages || [];
-                    $scope.$broadcast('save-config');
+                    $timeout(function() {
+                        $scope.$broadcast('save-config');
+                    });
                 } else {
                     resetCurrentSetup();
                 }

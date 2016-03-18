@@ -7,23 +7,22 @@
         return {
             scope: {
                 track: '=model',
-                appConfig: '=',
-                arduinoConnected: '@'
+                appConfig: '='
             },
             templateUrl: 'app/track/track.drv.html',
             controllerAs: 'vm',
             bindToController: true,
-            controller: function($scope, $element, $mdToast, trackService, toastQueue) {
+            controller: function($scope, $element, $mdToast, arduinoService, trackService, toastQueue) {
                 var vm = this;
 
-                $scope.$watch('vm.track', function(newValue, oldValue) {
+                /*$scope.$watch('vm.track', function(newValue, oldValue) {
                     if (angular.isDefined(vm.track.config.pinSSR)) {
                         vm.saveConfigIfConnected();
                     }
-                });
+                });*/
 
                 vm.isArduinoConnected = function() {
-                    return vm.arduinoConnected === 'true';
+                    return arduinoService.isConnected();
                 };
 
                 vm.addStep = function(index) {
@@ -119,6 +118,9 @@
                                 $mdDialog.cancel();
                             };
                         },
+                        onComplete: function() {
+                            angular.element(document.body).find('md-dialog').find('input')[0].focus();
+                        },
                         targetEvent: ev,
                         clickOutsideToClose: true
                     });
@@ -140,6 +142,7 @@
                 });
 
                 $scope.$on('save-config', function(event) {
+                    console.log('myTrack directive receiving save-config on $scope.$id [' + $scope.$id + ']');
                     vm.saveConfigIfConnected();
                 });
             }
