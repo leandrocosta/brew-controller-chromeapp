@@ -8,41 +8,63 @@
     function arduinoService($q, $interval, appConfig) {
         var that = this;
 
+        var connection;
+
+        function initConnection() {
+            connection = new SerialConnection();
+
+            connection.onConnect.addListener(function() {
+                var msg = 'CONNECTED TO ' + that.config.usbPort + ' at ' + that.config.bitrate;
+                that.log(msg);
+                that.state.desc = 'Connected!';
+                //promises["connect"].resolve();
+                //delete promises["connect"];
+            });
+
+            connection.onConnectError.addListener(function() {
+                var msg = 'CONNECTION FAILED!';
+                that.log(msg);
+                that.state.desc = 'Connection failed!';
+                promises["connect"].reject();
+                delete promises["connect"];
+            });
+
+            connection.onReadLine.addListener(function(str) {
+                that.log('RECV[' + str + ']');
+                if (str.indexOf('LOG:') !== 0) {
+                    var obj = JSON.parse(str);
+                    if (angular.isDefined(obj.status)) {
+                        promises["connect"].resolve(obj);
+                        delete promises["connect"];
+                    } else if (angular.isDefined(obj.cmd) && angular.isDefined(obj.success)) {
+                        promises[obj.cmd][obj.idx].resolve(obj);
+                        delete promises[obj.cmd][obj.idx];
+                    } else if (angular.isDefined(obj.idx)) {
+                        that.listeners[obj.idx](obj);
+                    }
+                }
+            });
+
+            connection.onError.addListener(function(error) {
+                var msg = 'ERROR [' + error.toString() + '] - changing connectionId from [' + connection.connectionId + '] to -1';
+                that.log(msg);
+                connection.connectionId = -1;
+                that.state.desc = 'Connection error!';
+            });
+        }
+
+        initConnection();
+
+        this.isConnected = function() {
+            return connection.connectionId >= 0;
+        };
+
         var promises = {
             "set": {},
             "play": {},
             "stop": {},
             "temp": {}
         };
-
-        var connection = new SerialConnection();
-
-        this.isConnected = function() {
-            return connection.connectionId >= 0;
-        };
-
-        connection.onConnect.addListener(function() {
-            var msg = 'CONNECTED TO ' + that.config.usbPort + ' at ' + that.config.bitrate;
-            that.log(msg);
-            that.state.desc = 'Connected!';
-            promises["connect"].resolve();
-            delete promises["connect"];
-        });
-
-        connection.onConnectError.addListener(function() {
-            var msg = 'CONNECTION FAILED!';
-            that.log(msg);
-            that.state.desc = 'Connection failed!';
-            promises["connect"].reject();
-            delete promises["connect"];
-        });
-
-        connection.onError.addListener(function(error) {
-            var msg = 'ERROR [' + error.toString() + '] - changing connectionId from [' + connection.connectionId + '] to -1';
-            that.log(msg);
-            connection.connectionId = -1;
-            that.state.desc = 'Connection error!';
-        });
 
         this.state = {
             desc: 'Not connected.'
@@ -155,24 +177,12 @@
             return deferred.promise;
         };
 
-        connection.onReadLine.addListener(function(str) {
-            that.log('RECV[' + str + ']');
-            if (str.indexOf('LOG:') !== 0) {
-                var obj = JSON.parse(str);
-                if (angular.isDefined(obj.cmd) && angular.isDefined(obj.success)) {
-                    promises[obj.cmd][obj.idx].resolve(obj);
-                    delete promises[obj.cmd][obj.idx];
-                } else if (angular.isDefined(obj.idx)) {
-                    that.listeners[obj.idx](obj);
-                }
-            }
-        });
-
         this.connect = function() {
             this.stopDemo();
             that.state.desc = 'Connecting...';
             var deferred = $q.defer();
             promises["connect"] = deferred;
+            initConnection();
             connection.connect(this.config.usbPort, this.config.bitrate);
             return deferred.promise;
         };
