@@ -63,6 +63,7 @@ track-head {
     border-left-color:#ddd;
     margin-left:109px;
     padding-left:4px;
+    -webkit-user-select: text;
 }
 
 .track-status-bar i {
