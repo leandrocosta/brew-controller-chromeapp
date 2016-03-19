@@ -56,7 +56,9 @@
 
             vm.connectToArduino = function() {
                 arduinoService.connect().then(function() {
-                    $scope.$broadcast('save-config');
+                    $timeout(function(){
+                        $scope.$broadcast('save-config');
+                    });
                 });
             };
 
