@@ -1,5 +1,5 @@
 (function() {
-    angular.module('App', ['ngMaterial', 'ngMdIcons', 'chromeStorage', 'ui.utils.masks', 'n3-line-chart'], function($provide) {
+    angular.module('App', ['ngMaterial', 'ngMdIcons', 'chromeStorage', 'ui.utils.masks', 'n3-line-chart', 'ngFileSaver'], function($provide) {
             // Prevent Angular from sniffing for the history API
             // since it's not supported in packaged apps.
             $provide.decorator('$window', function($delegate) {

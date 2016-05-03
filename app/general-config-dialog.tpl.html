@@ -7,21 +7,26 @@
                 <button-base on-click="cancel()" aria-label="Cancel" icon="close" class="md-icon-button" fill="white"></button-base>
             </div>
         </md-toolbar>
-        <md-dialog-content class="md-dialog-content">
+        <md-dialog-content class="md-dialog-content" layout="column">
+            <div layout="row" layout-align="center center">
+                <md-input-container flex>
+                    <label>USB port</label>
+                    <div layout="row" layout-align="center center" flex>
+                        <md-select flex layout-align="center center" aria-label="USB port" ng-model="config.usbPort">
+                            <md-option ng-repeat="port in ports" value="{{port.path}}">
+                                {{port.path}}
+                            </md-option>
+                        </md-select>
+                        <button-base on-click="refresh()" aria-label="Refresh" icon="refresh" class="md-icon-button" fill="dimgray"></button-base>
+                    </div>
+                </md-input-container>
+                <md-input-container>
+                    <label>Bitrate</label>
+                    <input ng-model="config.bitrate" ui-number-mask="0" maxlength="7">
+                </md-input-container>
+            </div>
             <md-input-container flex>
-                <label>USB port</label>
-                <div layout="row" layout-align="center center" flex>
-                    <md-select flex layout-align="center center" aria-label="USB port" ng-model="config.usbPort">
-                        <md-option ng-repeat="port in ports" value="{{port.path}}">
-                            {{port.path}}
-                        </md-option>
-                    </md-select>
-                    <button-base on-click="refresh()" aria-label="Refresh" icon="refresh" class="md-icon-button" fill="dimgray"></button-base>
-                </div>
-            </md-input-container>
-            <md-input-container flex>
-                <label>Bitrate</label>
-                <input ng-model="config.bitrate" ui-number-mask="0" maxlength="7">
+                <md-checkbox ng-model="config.enableLog" aria-label="Enable log">Enable log</md-checkbox>
             </md-input-container>
         </md-dialog-content>
         <md-dialog-actions layout="row">

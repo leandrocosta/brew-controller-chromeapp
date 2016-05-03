@@ -56,7 +56,7 @@
 
             vm.connectToArduino = function() {
                 arduinoService.connect().then(function() {
-                    $timeout(function(){
+                    $timeout(function() {
                         $scope.$broadcast('save-config');
                     });
                 });
@@ -104,7 +104,9 @@
             };
 
             arduinoService.registerLogListener(function(msg) {
-                vm.logMessages.push(msg);
+                if (arduinoService.config.enableLog) {
+                    vm.logMessages.push(msg);
+                }
             });
 
             vm.openGeneralConfigDialog = function(ev) {
@@ -162,7 +164,7 @@
             vm.openListDialog = function(ev) {
                 var dialog = $mdDialog.show({
                     templateUrl: 'app/setups/list-dialog.tpl.html',
-                    controller: function($scope, $mdDialog) {
+                    controller: function($scope, $mdDialog, FileSaver) {
                         $scope.items = vm.setups;
 
                         $scope.clone = function(item) {
@@ -174,6 +176,10 @@
                             });
                             vm.selectedSetup = undefined;
                             $mdDialog.hide();
+                        };
+
+                        $scope.export = function(item) {
+                            FileSaver.saveAs(new Blob([JSON.stringify(item)]), new Date(item.dateTime).toISOString() + ' - ' + item.name + '.json');
                         };
 
                         $scope.delete = function(item) {
