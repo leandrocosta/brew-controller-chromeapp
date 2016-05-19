@@ -35,10 +35,10 @@
                 return this.playStep(track, 0).then(function() {
                     track.running = true;
                     track.pause = false;
-                    track.series.push({
+                    /*track.series.push({
                         dateTime: new Date().getTime(),
                         data: []
-                    });
+                    });*/
                 });
             };
 
@@ -64,6 +64,10 @@
                                 };
                                 step.running = true;
                                 step.paused = false;
+                                track.series.push({
+                                    dateTime: new Date().getTime(),
+                                    data: []
+                                });
                             });
                         });
                     });
@@ -80,6 +84,10 @@
                         };
                         step.running = true;
                         step.paused = false;
+                        track.series.push({
+                            dateTime: new Date().getTime(),
+                            data: []
+                        });
                     });
                 }
             };
