@@ -42,6 +42,6 @@
         </div>
     </div>
     <div class="track-status-bar" layout-fill>
-        <span class="md-caption"><i>Status</i>: SSR pin: {{vm.track.status.pinSSR}} / DS18B20 pin: {{vm.track.status.pinDS18B20}} / kP: {{vm.track.status.kp | number}} / kI: {{vm.track.status.ki | number}} / kD: {{vm.track.status.kd | number}} / Sample Time: {{vm.track.status.sampleTime | number}} / Window size: {{vm.track.status.windowSize | number}} / Setpoint: {{vm.track.status.setpoint | number:2}} / Input: {{vm.track.status.input | number:2}} / Output: {{vm.track.status.output | number}} / running: {{vm.track.status.running ? 'YES':'NO'}} / outputSSR: {{vm.track.status.outputSSR ? 'HIGH':'LOW'}}</span>
+        <span class="md-caption"><i>Status</i>: SSR pin: {{vm.track.status.pinSSR}} / DS18B20 pin: {{vm.track.status.pinDS18B20}} / kP: {{vm.track.status.kp | number}} / kI: {{vm.track.status.ki | number}} / kD: {{vm.track.status.kd | number}} / Sample time: {{vm.track.status.sampleTime | number}} / Window size: {{vm.track.status.windowSize | number}} / Window start time: {{vm.track.status.windowStartTime}} / Now: {{vm.track.status.now}} / Setpoint: {{vm.track.status.setpoint | number:2}} / Input: {{vm.track.status.input | number:2}} / Output: {{vm.track.status.output | number}} / running: {{vm.track.status.running ? 'YES':'NO'}} / outputSSR: {{vm.track.status.outputSSR ? 'HIGH':'LOW'}}</span>
     </div>
 </div>

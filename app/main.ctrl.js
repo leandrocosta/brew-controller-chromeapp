@@ -84,17 +84,41 @@
 
                 if (setup) {
                     vm.currentSetup = angular.copy(setup);
-                    vm.currentSetup.tracks.map(function(track) {
-                        track.series.map(function(series) {
-                            series.data.map(function(sample) {
-                                if (!(sample.x instanceof Date)) {
-                                    sample.x = new Date(sample._xDateTime);
-                                }
+                    vm.tracks = angular.copy(vm.currentSetup.tracks || []);
+
+                    angular.forEach(vm.tracks, function(track) {
+                        chromeStorage.getOrElse('series_' + track.id + '_' + vm.currentSetup.dateTime + '_' + vm.currentSetup.name, function() {
+                            return $q(function(resolve, reject) {
+                                resolve([]);
+                            });
+                        }).then(function(series) {
+                            track.series = series;
+                            angular.forEach(track.series, function(series) {
+                                angular.forEach(series.data, function(sample) {
+                                    if (!(sample.x instanceof Date)) {
+                                        sample.x = new Date(sample._xDateTime);
+                                    }
+                                });
                             });
                         });
                     });
-                    vm.tracks = vm.currentSetup.tracks || [];
-                    vm.logMessages = vm.currentSetup.logMessages || [];
+
+                    chromeStorage.getOrElse('log_' + vm.currentSetup.dateTime + '_' + vm.currentSetup.name, function() {
+                        return $q(function(resolve, reject) {
+                            resolve([]);
+                        });
+                    }).then(function(logMessages) {
+                        if (! logMessages.length && vm.currentSetup.logMessages.length) {
+                            console.log('fix logMessages');
+                            logMessages = vm.currentSetup.logMessages;
+                            delete vm.currentSetup.logMessages;
+                            delete setup.logMessages;
+                        }
+                        vm.logMessages = logMessages;
+                    });
+
+                    //vm.tracks = vm.currentSetup.tracks || [];
+                    //vm.logMessages = vm.currentSetup.logMessages || [];
                     $timeout(function() {
                         $scope.$broadcast('save-config');
                     });
@@ -130,18 +154,36 @@
                         };
 
                         $scope.save = function() {
+                            var name = $scope.name;
+
                             if ($scope.selectedItem) {
-                                $scope.selectedItem.name = $scope.name;
-                                $scope.selectedItem.tracks = angular.copy(vm.tracks);
-                                $scope.selectedItem.logMessages = angular.copy(vm.logMessages);
+                                $scope.selectedItem.name = name;
+                                $scope.selectedItem.tracks = vm.tracks.map(function(track) {
+                                    chromeStorage.set('series_' + track.id + '_' + vm.currentSetup.dateTime + '_' + name, track.series);
+                                    return {
+                                        id: track.id,
+                                        config: angular.copy(track.config),
+                                        steps: angular.copy(track.steps)
+                                    };
+                                });
+                                //$scope.selectedItem.logMessages = angular.copy(vm.logMessages);
+                                chromeStorage.set('log_' + vm.currentSetup.dateTime + '_' + name, vm.logMessages);
                                 vm.selectedSetup = $scope.selectedItem;
                             } else {
+                                var dateTime = new Date().getTime();
                                 var setup = {
-                                    name: $scope.name,
-                                    dateTime: new Date().getTime(),
-                                    tracks: angular.copy(vm.tracks),
-                                    logMessages: angular.copy(vm.logMessages)
+                                    name: name,
+                                    dateTime: dateTime,
+                                    tracks: vm.tracks.map(function(track) {
+                                        chromeStorage.set('series_' + track.id + '_' + dateTime + '_' + name, track.series);
+                                        return {
+                                            id: track.id,
+                                            config: angular.copy(track.config),
+                                            steps: angular.copy(track.steps)
+                                        };
+                                    })
                                 };
+                                chromeStorage.set('log_' + dateTime + '_' + name, vm.logMessages);
                                 vm.setups.push(setup);
                                 vm.selectedSetup = setup;
                             }

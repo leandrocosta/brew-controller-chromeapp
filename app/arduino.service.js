@@ -201,9 +201,11 @@
             that.listeners[trackId] = handler;
         };
 
-        that.log = function(msg) {
+        this.log = function(msg) {
             var logMsg = new Date().toTimeString().replace(/ .*/, '') + ' ' + msg;
-            console.log(logMsg);
+            if (that.config.enableConsoleLog) {
+                console.log(logMsg);
+            }
             if (that.logHandler) {
                 that.logHandler(logMsg);
             }
