@@ -108,17 +108,9 @@
                             resolve([]);
                         });
                     }).then(function(logMessages) {
-                        if (! logMessages.length && vm.currentSetup.logMessages.length) {
-                            console.log('fix logMessages');
-                            logMessages = vm.currentSetup.logMessages;
-                            delete vm.currentSetup.logMessages;
-                            delete setup.logMessages;
-                        }
                         vm.logMessages = logMessages;
                     });
 
-                    //vm.tracks = vm.currentSetup.tracks || [];
-                    //vm.logMessages = vm.currentSetup.logMessages || [];
                     $timeout(function() {
                         $scope.$broadcast('save-config');
                     });
@@ -166,7 +158,6 @@
                                         steps: angular.copy(track.steps)
                                     };
                                 });
-                                //$scope.selectedItem.logMessages = angular.copy(vm.logMessages);
                                 chromeStorage.set('log_' + vm.currentSetup.dateTime + '_' + name, vm.logMessages);
                                 vm.selectedSetup = $scope.selectedItem;
                             } else {
