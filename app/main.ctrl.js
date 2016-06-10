@@ -43,11 +43,10 @@
                     }, {
                         id: 2,
                         config: {},
-                    }],
-                    logMessages: []
+                    }]
                 };
-                vm.tracks = vm.currentSetup.tracks || [];
-                vm.logMessages = vm.currentSetup.logMessages || [];
+                vm.tracks = angular.copy(vm.currentSetup.tracks);
+                vm.logMessages = [];
             }
 
             resetCurrentSetup();
@@ -80,14 +79,20 @@
             };
 
             vm.onSelectedSetupChange = function() {
+                if (vm.selectedSetup === vm.currentSetup) {
+                    return;
+                }
+
                 var setup = vm.selectedSetup;
 
                 if (setup) {
-                    vm.currentSetup = angular.copy(setup);
+                    vm.currentSetup = setup;
                     vm.tracks = angular.copy(vm.currentSetup.tracks || []);
 
                     angular.forEach(vm.tracks, function(track) {
-                        chromeStorage.getOrElse('series_' + track.id + '_' + vm.currentSetup.dateTime + '_' + vm.currentSetup.name, function() {
+                        var key = 'series_' + track.id + '_' + vm.currentSetup.dateTime;
+                        console.log('get ' + key);
+                        chromeStorage.getOrElse(key, function() {
                             return $q(function(resolve, reject) {
                                 resolve([]);
                             });
@@ -103,7 +108,9 @@
                         });
                     });
 
-                    chromeStorage.getOrElse('log_' + vm.currentSetup.dateTime + '_' + vm.currentSetup.name, function() {
+                    var key = 'log_' + vm.currentSetup.dateTime;
+                    console.log('get ' + key);
+                    chromeStorage.getOrElse(key, function() {
                         return $q(function(resolve, reject) {
                             resolve([]);
                         });
@@ -144,41 +151,69 @@
                             });
                             return filteredItems;
                         };
-
+ 
                         $scope.save = function() {
                             var name = $scope.name;
 
-                            if ($scope.selectedItem) {
+                            var setupToSaveInto = $scope.selectedItem || vm.currentSetup;
+                            var dateTime = setupToSaveInto.dateTime || new Date().getTime();
+
+                            angular.extend(setupToSaveInto, {
+                                name: name,
+                                tracks: vm.tracks.map(function(track) {
+                                    var key = 'series_' + track.id + '_' + dateTime;
+                                    console.log('set ' + key);
+                                    chromeStorage.set(key, track.series);
+                                    return {
+                                        id: track.id,
+                                        config: angular.copy(track.config),
+                                        steps: angular.copy(track.steps)
+                                    };
+                                })
+                            });
+
+                            var key = 'log_' + dateTime;
+                            console.log('set ' + key);
+                            chromeStorage.set(key, vm.logMessages);
+
+                            if (!setupToSaveInto.dateTime) {
+                                setupToSaveInto.dateTime = dateTime;
+                                vm.setups.push(setupToSaveInto);
+                            }
+
+                            vm.selectedSetup = setupToSaveInto;
+
+                            /*if ($scope.selectedItem) {
                                 $scope.selectedItem.name = name;
                                 $scope.selectedItem.tracks = vm.tracks.map(function(track) {
-                                    chromeStorage.set('series_' + track.id + '_' + vm.currentSetup.dateTime + '_' + name, track.series);
+                                    chromeStorage.set('series_' + track.id + '_' + vm.currentSetup.dateTime, track.series);
                                     return {
                                         id: track.id,
                                         config: angular.copy(track.config),
                                         steps: angular.copy(track.steps)
                                     };
                                 });
-                                chromeStorage.set('log_' + vm.currentSetup.dateTime + '_' + name, vm.logMessages);
-                                vm.selectedSetup = $scope.selectedItem;
+                                chromeStorage.set('log_' + vm.currentSetup.dateTime, vm.logMessages);
+                                vm.currentSetup = vm.selectedSetup = $scope.selectedItem;
                             } else {
                                 var dateTime = new Date().getTime();
-                                var setup = {
+                                angular.extend(vm.currentSetup, {
                                     name: name,
                                     dateTime: dateTime,
                                     tracks: vm.tracks.map(function(track) {
-                                        chromeStorage.set('series_' + track.id + '_' + dateTime + '_' + name, track.series);
+                                        chromeStorage.set('series_' + track.id + '_' + dateTime, track.series);
                                         return {
                                             id: track.id,
                                             config: angular.copy(track.config),
                                             steps: angular.copy(track.steps)
                                         };
                                     })
-                                };
-                                chromeStorage.set('log_' + dateTime + '_' + name, vm.logMessages);
-                                vm.setups.push(setup);
-                                vm.selectedSetup = setup;
-                            }
-                            vm.onSelectedSetupChange();
+                                });
+
+                                chromeStorage.set('log_' + dateTime, vm.logMessages);
+                                vm.setups.push(vm.currentSetup);
+                                vm.selectedSetup = vm.currentSetup;
+                            }*/
                             $mdDialog.hide();
                         };
 
@@ -203,7 +238,8 @@
                         $scope.clone = function(item) {
                             console.log('clone', item);
                             resetCurrentSetup();
-                            angular.merge(vm.tracks, item.tracks);
+                            angular.merge(vm.currentSetup.tracks, item.tracks);
+                            vm.tracks = angular.copy(vm.currentSetup.tracks);
                             angular.forEach(vm.tracks, function(track) {
                                 track.series = [];
                             });
@@ -212,10 +248,38 @@
                         };
 
                         $scope.export = function(item) {
-                            FileSaver.saveAs(new Blob([JSON.stringify(item)]), new Date(item.dateTime).toISOString() + ' - ' + item.name + '.json');
+                            var itemToExport = angular.copy(item);
+                            itemToExport.tracks.map(function(track) {
+                                chromeStorage.getOrElse('series_' + track.id + '_' + itemToExport.dateTime, function() {
+                                    return $q(function(resolve, reject) {
+                                        resolve([]);
+                                    });
+                                }).then(function(series) {
+                                    track.series = series;
+                                    track.series.map(function(series) {
+                                        series.data.map(function(sample) {
+                                            if (!(sample.x instanceof Date)) {
+                                                sample.x = new Date(sample._xDateTime);
+                                            }
+                                        });
+                                    });
+                                });
+                            });
+                            chromeStorage.getOrElse('log_' + itemToExport.dateTime, function() {
+                                return $q(function(resolve, reject) {
+                                    resolve([]);
+                                });
+                            }).then(function(logMessages) {
+                                itemToExport.logMessages = logMessages;
+                            });
+                            FileSaver.saveAs(new Blob([JSON.stringify(itemToExport)]), new Date(itemToExport.dateTime).toISOString() + ' - ' + itemToExport.name + '.json');
                         };
 
                         $scope.delete = function(item) {
+                            chromeStorage.drop('log_' + item.dateTime);
+                            angular.forEach(item.tracks, function(track) {
+                                chromeStorage.drop('series_' + track.id + '_' + item.dateTime);
+                            });
                             vm.setups.splice(vm.setups.indexOf(item), 1);
                         };
 
