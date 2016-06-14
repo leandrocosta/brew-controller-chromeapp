@@ -228,7 +228,7 @@
                         kp: null,
                         ki: null,
                         kd: null,
-                        i: appConfig.mock[key].input,
+                        i: appConfig.mock[key].input + Math.random() - 0.5,
                         o: null,
                         sp: null,
                         st: null,
