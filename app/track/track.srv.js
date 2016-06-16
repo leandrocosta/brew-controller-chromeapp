@@ -93,32 +93,6 @@
             };
 
             this.stop = function(track) {
-                /*arduinoService.stop(track).then(function(response) {
-                    track.running = false;
-                    track.steps[track.current_step_idx].running = false;
-                    track.steps.forEach(function(step) {
-                        delete step.run;
-                    });
-                });*/
-                /*var step = track.steps[track.current_step_idx];
-                if (step.temperature) {
-                    return arduinoService.stop(track).then(function(response) {
-                        track.running = false;
-                        step.running = false;
-                        track.steps.forEach(function(step) {
-                            delete step.run;
-                        });
-                    });
-                } else {
-                    track.running = false;
-                    step.running = false;
-                    track.steps.forEach(function(step) {
-                        delete step.run;
-                    });
-                    var deferred = $q.defer();
-                    deferred.resolve(true);
-                    return deferred.promise;
-                }*/
                 return this.stopCurrentStep(track).then(function(response) {
                     track.running = false;
                     track.steps.forEach(function(step) {
@@ -182,20 +156,6 @@
                     step.run.timer.start();
                 }
             };
-
-            /*this.recursivelyGetTemperature = function(track) {
-                var step = track.steps[track.current_step_idx];
-                arduinoService.getTemperature(track).then(function(response) {
-                    if (step.run) {
-                        step.run.curr_temp = response.value;
-                        that.handleCurrTemp(track, step);
-
-                        if (track.steps[track.current_step_idx].running) {
-                            that.recursivelyGetTemperature(track);
-                        }
-                    }
-                });
-            }*/
 
             this.handleCurrTemp = function(track, step) {
                 if (angular.isDefined(step.temperature) && step.temperature !== null && !step.run.timer && step.run.curr_temp >= step.temperature) {
@@ -264,8 +224,8 @@
                         track.status.input = obj.i;
                         track.status.output = obj.o;
                         track.status.setpoint = obj.sp;
-                        track.status.windowStartTime = obj.wst;
-                        track.status.now = obj.now;
+                        //track.status.windowStartTime = obj.wst;
+                        //track.status.now = obj.now;
                         track.status.sampleTime = obj.st;
                         track.status.windowSize = obj.ws;
                         track.status.running = obj.r;
