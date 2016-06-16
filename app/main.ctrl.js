@@ -183,37 +183,6 @@
 
                             vm.selectedSetup = setupToSaveInto;
 
-                            /*if ($scope.selectedItem) {
-                                $scope.selectedItem.name = name;
-                                $scope.selectedItem.tracks = vm.tracks.map(function(track) {
-                                    chromeStorage.set('series_' + track.id + '_' + vm.currentSetup.dateTime, track.series);
-                                    return {
-                                        id: track.id,
-                                        config: angular.copy(track.config),
-                                        steps: angular.copy(track.steps)
-                                    };
-                                });
-                                chromeStorage.set('log_' + vm.currentSetup.dateTime, vm.logMessages);
-                                vm.currentSetup = vm.selectedSetup = $scope.selectedItem;
-                            } else {
-                                var dateTime = new Date().getTime();
-                                angular.extend(vm.currentSetup, {
-                                    name: name,
-                                    dateTime: dateTime,
-                                    tracks: vm.tracks.map(function(track) {
-                                        chromeStorage.set('series_' + track.id + '_' + dateTime, track.series);
-                                        return {
-                                            id: track.id,
-                                            config: angular.copy(track.config),
-                                            steps: angular.copy(track.steps)
-                                        };
-                                    })
-                                });
-
-                                chromeStorage.set('log_' + dateTime, vm.logMessages);
-                                vm.setups.push(vm.currentSetup);
-                                vm.selectedSetup = vm.currentSetup;
-                            }*/
                             $mdDialog.hide();
                         };
 
