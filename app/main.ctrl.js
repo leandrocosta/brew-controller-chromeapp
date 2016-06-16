@@ -151,7 +151,7 @@
                             });
                             return filteredItems;
                         };
- 
+
                         $scope.save = function() {
                             var name = $scope.name;
 
@@ -249,8 +249,10 @@
 
                         $scope.export = function(item) {
                             var itemToExport = angular.copy(item);
+                            var promises = [];
+
                             itemToExport.tracks.map(function(track) {
-                                chromeStorage.getOrElse('series_' + track.id + '_' + itemToExport.dateTime, function() {
+                                var promise = chromeStorage.getOrElse('series_' + track.id + '_' + itemToExport.dateTime, function() {
                                     return $q(function(resolve, reject) {
                                         resolve([]);
                                     });
@@ -264,15 +266,22 @@
                                         });
                                     });
                                 });
+                                promises.push(promise);
                             });
-                            chromeStorage.getOrElse('log_' + itemToExport.dateTime, function() {
+
+                            var promise = chromeStorage.getOrElse('log_' + itemToExport.dateTime, function() {
                                 return $q(function(resolve, reject) {
                                     resolve([]);
                                 });
                             }).then(function(logMessages) {
                                 itemToExport.logMessages = logMessages;
                             });
-                            FileSaver.saveAs(new Blob([JSON.stringify(itemToExport)]), new Date(itemToExport.dateTime).toISOString() + ' - ' + itemToExport.name + '.json');
+
+                            promises.push(promise);
+
+                            $q.all(promises).then(function() {
+                                FileSaver.saveAs(new Blob([JSON.stringify(itemToExport)]), new Date(itemToExport.dateTime).toISOString() + ' - ' + itemToExport.name + '.json');
+                            });
                         };
 
                         $scope.delete = function(item) {
