@@ -1,6 +1,6 @@
 (function() {
     angular.module('App')
-        .controller('MainCtrl', function($scope, $timeout, $q, $mdDialog, appConfig, chromeStorage, arduinoService, generalConfigService) {
+        .controller('MainCtrl', function($scope, $element, $timeout, $q, $mdDialog, $mdToast, appConfig, chromeStorage, arduinoService, toastQueue, generalConfigService) {
             var vm = this;
             $scope.vm = vm;
 
@@ -68,6 +68,20 @@
             vm.isConnected = function() {
                 return arduinoService.isConnected();
             };
+
+            $scope.$watch('vm.arduinoState.desc', function(newValue) {
+                if (newValue === 'Connection error!') {
+                    console.log('Connection error!!!');
+                    var toast = $mdToast.simple()
+                        .content('Connection error!')
+                        .action('OK')
+                        .hideDelay(0)
+                        .highlightAction(false)
+                        .position('bottom right')
+                        .parent($element);
+                    toastQueue.add(toast);
+                }
+            });
 
             vm.searchSetups = function() {
                 var filteredItems = vm.setups.filter(function(item) {

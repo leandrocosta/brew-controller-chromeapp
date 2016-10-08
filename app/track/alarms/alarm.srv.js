@@ -19,6 +19,6 @@
                 $interval.cancel(timer);
                 timer = null;
             }
-        }
+        };
     }
 })();
