@@ -158,7 +158,7 @@
             };
 
             this.handleCurrTemp = function(track, step) {
-                if (angular.isDefined(step.temperature) && step.temperature !== null && !step.run.timer && step.run.curr_temp >= step.temperature) {
+                if (angular.isNumber(step.temperature) && !step.run.timer && step.run.curr_temp >= step.temperature) {
                     // start counting, play alarms
                     step.run.timer = timerService.new();
                     step.run.timer.start();
