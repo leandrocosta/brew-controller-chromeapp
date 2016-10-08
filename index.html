@@ -18,6 +18,7 @@
     <div flex layout="row" layout-align="end end" layout-margin>
         <div layout="row" layout-align="start end" flex>
             <md-switch ng-model="mainVm.appConfig.demoMode" aria-label="Simulation mode" class="md-warn">Simulation mode</md-switch>
+            <button-base ng-if="mainVm.appConfig.demoMode" on-click="mainVm.arduinoState.desc = 'Connection error!'" icon="error" aria-label="Simulate error" class="md-icon-button" fill="rgb(244,67,54)"></button-base>
         </div>
         <div layout="row" layout-align="end center">
             <md-autocomplete placeholder="Open a setup" md-search-text="mainVm.setupsSearchText" md-items="item in mainVm.searchSetups()" md-selected-item="mainVm.selectedSetup" md-selected-item-change="mainVm.onSelectedSetupChange()" md-item-text="item.name + ' (' + (item.dateTime |date:'short')+ ')'" md-min-length="0" md-no-cache=true>
