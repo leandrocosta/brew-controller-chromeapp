@@ -35,6 +35,7 @@ track-head {
 
 .track-tail {
     position:absolute;
+    top:0;
     right:-6px;
     text-align:right;
 }
