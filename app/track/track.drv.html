@@ -6,7 +6,7 @@
         </track-head>
         <button-add ng-if="!vm.track.running" on-click="vm.addStep(0)"></button-add>
         <div class="track-steps-container" layout="row" layout-align="start center" layout-fill>
-            <step model="step" ng-repeat="step in vm.track.steps" layout="row" layout-align="center center">
+            <step model="step" ng-repeat="step in vm.track.steps track by $index" layout="row" layout-align="center center">
                 <button-forward ng-if="!$first && vm.track.running" ng-click="vm.forwardStep($index)" my-disabled="{{!vm.track.steps[$index-1].running}}"></button-forward>
                 <md-whiteframe ng-class="{'md-whiteframe-z5':step.running,'md-whiteframe-z1':!step.running}" layout="column" layout-align="center start" layout-margin layout-padding flex>
                     <div layout="row" layout-align="start center">

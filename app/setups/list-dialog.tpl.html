@@ -9,7 +9,7 @@
         </md-toolbar>
         <md-dialog-content class="md-dialog-content" style="min-height:100px;min-width:400px;">
             <md-list>
-                <md-list-item ng-repeat="item in items | orderBy:'-dateTime'">
+                <md-list-item ng-repeat="item in items track by $index | orderBy:'-dateTime'">
                     <p ng-click="open()">{{item.name}} ({{item.dateTime | date:'short'}})</p>
                     <md-button ng-click="clone(item)" class="md-primary">Clone</md-button>
                     <md-button ng-click="export(item)" class="md-primary">Export</md-button>

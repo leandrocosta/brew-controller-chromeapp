@@ -3,9 +3,7 @@
         .module('App')
         .service('arduinoService', arduinoService);
 
-    arduinoService.$inject = ['$q', '$interval', 'appConfig'];
-
-    function arduinoService($q, $interval, appConfig) {
+    function arduinoService($q, $interval, appConfig, generalConfigService) {
         var that = this;
 
         var connection;
@@ -14,7 +12,8 @@
             connection = new SerialConnection();
 
             connection.onConnect.addListener(function() {
-                var msg = 'CONNECTED TO ' + that.config.usbPort + ' at ' + that.config.bitrate;
+                var config = generalConfigService.getConfig();
+                var msg = 'CONNECTED TO ' + config.usbPort + ' at ' + config.bitrate;
                 that.log(msg);
                 that.state.desc = 'Connected!';
                 //promises["connect"].resolve();
@@ -32,7 +31,7 @@
             connection.onReadLine.addListener(function(str) {
                 that.log('RECV[' + str + ']');
                 if (str.indexOf('LOG:') !== 0) {
-                    var obj = JSON.parse(str);
+                    var obj = angular.fromJson(str);
                     if (angular.isDefined(obj.status)) {
                         promises["connect"].resolve(obj);
                         delete promises["connect"];
@@ -69,18 +68,6 @@
         this.state = {
             desc: 'Not connected.'
         };
-
-        this.config = {
-            //usbPort: '/dev/ttyUSB0',
-            bitrate: 9600
-        };
-
-        chrome.serial.getDevices(function(ports) {
-            console.log('usb ports', ports);
-            if (ports && ports.length) {
-                that.config.usbPort = ports[0].path;
-            }
-        });
 
         this.set = function(track, step) { // S 0 11 10 10000 0 0 10000 35.0
             var temperature = (step ? step.temperature : 0);
@@ -178,12 +165,14 @@
         };
 
         this.connect = function() {
+            var config = generalConfigService.getConfig();
+            console.log('Connecting to ' + config.usbPort + ' at ' + config.bitrate + 'bps');
             this.stopDemo();
             that.state.desc = 'Connecting...';
             var deferred = $q.defer();
             promises["connect"] = deferred;
             initConnection();
-            connection.connect(this.config.usbPort, this.config.bitrate);
+            connection.connect(usbPort, bitrate);
             return deferred.promise;
         };
 
@@ -203,7 +192,7 @@
 
         this.log = function(msg) {
             var logMsg = new Date().toTimeString().replace(/ .*/, '') + ' ' + msg;
-            if (that.config.enableConsoleLog) {
+            if (generalConfigService.getConfig().enableConsoleLog) {
                 console.log(logMsg);
             }
             if (that.logHandler) {

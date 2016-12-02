@@ -31,6 +31,7 @@
             </md-autocomplete>
             <button-base on-click="mainVm.openSaveDialog($event)" icon="save" aria-label="Save" class="md-icon-button" fill="dimgray"></button-base>
             <button-base on-click="mainVm.openListDialog($event)" icon="list" aria-label="Setups" class="md-icon-button" fill="dimgray"></button-base>
+            <button-base on-click="mainVm.gist($event)" icon="github-circle" aria-label="Gist" class="md-icon-button" fill="dimgray" my-disabled="{{!mainVm.currentSetup.name}}"></button-base>
             <button-base on-click="mainVm.openGeneralConfigDialog($event)" icon="settings" aria-label="Config" class="md-icon-button" fill="dimgray"></button-base>
             <button-base on-click="mainVm.openLogDialog($event)" icon="insert_drive_file" aria-label="Log messages" class="md-icon-button" fill="dimgray"></button-base>
             <button-base ng-if="! mainVm.isConnected()" on-click="mainVm.connectToArduino()" icon="usb" aria-label="Connect to Arduino" class="md-icon-button" fill="dimgray"></button-base>
@@ -55,6 +56,7 @@
     <script src="vendor/FileSaver.min.js"></script>
     <script src="vendor/Blob.min.js"></script>
     <script src="vendor/angular-file-saver.min.js"></script>
+    <script src="vendor/angular-base64.min.js"></script>
 
     <script src="app/app.js"></script>
     <script src="app/arduino.service.js"></script>

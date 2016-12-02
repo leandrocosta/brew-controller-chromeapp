@@ -13,7 +13,7 @@
                     <label>USB port</label>
                     <div layout="row" layout-align="center center" flex>
                         <md-select flex layout-align="center center" aria-label="USB port" ng-model="config.usbPort">
-                            <md-option ng-repeat="port in ports" value="{{port.path}}">
+                            <md-option ng-repeat="port in ports track by $index" value="{{port.path}}">
                                 {{port.path}}
                             </md-option>
                         </md-select>
@@ -23,6 +23,17 @@
                 <md-input-container>
                     <label>Bitrate</label>
                     <input ng-model="config.bitrate" ui-number-mask="0" maxlength="7">
+                </md-input-container>
+            </div>
+            <p class="md-caption">GitHub Credentials</p>
+            <div layout="row">
+                <md-input-container flex>
+                    <label>Username</label>
+                    <input ng-model="config.githubUsername">
+                </md-input-container>
+                <md-input-container flex>
+                    <label>Password</label>
+                    <input ng-model="config.githubPassword" type="password">
                 </md-input-container>
             </div>
             <md-input-container flex>

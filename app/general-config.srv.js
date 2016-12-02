@@ -3,17 +3,37 @@
         .module('App')
         .service('generalConfigService', generalConfigService);
 
-    generalConfigService.$inject = ['$mdDialog', 'arduinoService'];
+    function generalConfigService($mdDialog, chromeStorage) {
+        var config;
 
-    function generalConfigService($mdDialog, arduinoService) {
+        chromeStorage.getOrElse('config', function() {
+            return $q(function(resolve, reject) {
+                resolve({ bitrate: 9600 });
+            });
+        }).then(function(c) {
+            config = c;
+
+            chrome.serial.getDevices(function(ports) {
+                console.log('usb ports', ports);
+                if (ports && ports.length) {
+                    config.usbPort = ports[0].path;
+                }
+            });
+        });
+
+        this.getConfig = function() {
+            return config;
+        };
+
         this.showDialog = function(ev) {
             $mdDialog.show({
                 templateUrl: 'app/general-config-dialog.tpl.html',
                 controller: function($scope, $mdDialog) {
-                    $scope.config = angular.copy(arduinoService.config);
+                    $scope.config = angular.copy(config);
 
                     $scope.save = function() {
-                        arduinoService.config = angular.copy($scope.config);
+                        config = angular.copy($scope.config);
+                        chromeStorage.set('config', config);
                         $mdDialog.hide();
                     };
 
@@ -29,10 +49,8 @@
                         console.log('getting USB ports');
                         chrome.serial.getDevices(function(ports) {
                             $scope.ports = ports;
-                            /*if (!angular.isDefined($scope.config.usbPort)) {*/
                             $scope.config.usbPort = $scope.ports[0].path;
-                            arduinoService.config = angular.copy($scope.config);
-                            /*}*/
+                            config = angular.copy($scope.config);
                         });
                     }
 

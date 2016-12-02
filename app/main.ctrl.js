@@ -1,6 +1,6 @@
 (function() {
     angular.module('App')
-        .controller('MainCtrl', function($scope, $element, $timeout, $q, $mdDialog, $mdToast, appConfig, chromeStorage, arduinoService, toastQueue, generalConfigService) {
+        .controller('MainCtrl', function($scope, $element, $timeout, $q, $http, $base64, $mdDialog, $mdToast, appConfig, chromeStorage, arduinoService, toastQueue, generalConfigService) {
             var vm = this;
             $scope.vm = vm;
 
@@ -141,7 +141,7 @@
             };
 
             arduinoService.registerLogListener(function(msg) {
-                if (arduinoService.config.enableLog) {
+                if (generalConfigService.getConfig().enableLog) {
                     vm.logMessages.push(msg);
                 }
             });
@@ -263,7 +263,7 @@
                             promises.push(promise);
 
                             $q.all(promises).then(function() {
-                                FileSaver.saveAs(new Blob([JSON.stringify(itemToExport)]), new Date(itemToExport.dateTime).toISOString() + ' - ' + itemToExport.name + '.json');
+                                FileSaver.saveAs(new Blob([angular.toJson(itemToExport)]), new Date(itemToExport.dateTime).toISOString() + ' - ' + itemToExport.name + '.json');
                             });
                         };
 
@@ -295,6 +295,28 @@
                             $mdDialog.hide();
                         };
                     }
+                });
+            };
+
+            vm.gist = function(ev) {
+                $http.get('app/gist/index.tpl.html').then(function(response) {
+                    var indexHtmlContent = response.data;
+                    var config = generalConfigService.getConfig();
+                    var auth = $base64.encode(config.githubUsername + ':' + config.githubPassword);
+                    $http.defaults.headers.common['Authorization'] = 'Basic ' + auth;
+                    var gist = {
+                        description: vm.currentSetup.name + '(' + new Date(vm.currentSetup.dateTime).toISOString().substring(0, 10) + ')',
+                        public: true,
+                        files: {
+                            'index.html': {
+                                content: indexHtmlContent
+                            }, 'data.json': {
+                                content: angular.toJson(vm.currentSetup)
+                            }
+                        }
+                    };
+                    //console.log(gist);
+                    $http.post('https://api.github.com/gists', gist, {'Content-Type':'application/json'});
                 });
             };
         });

@@ -1,0 +1,43 @@
+<!doctype html>
+<html ng-app="app">
+    <head>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.8/angular.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.12/d3.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/line-chart/1.1.12/line-chart.min.js"></script>
+        <script type="text/javascript">
+            var app = angular.module('app', ['n3-line-chart']);
+            app.controller('MainCtrl', function($scope, $http) {
+                $http.get('data.json').success(function(response) {
+                  $scope.setup = response;
+                    response.tracks.forEach(function(t) {
+                        t.series.forEach(function(s) {
+                            s.data.forEach(function(sample) {
+                                if (!(sample.x instanceof Date)) {
+                                    sample.x = new Date(sample._xDateTime);
+                                }
+                            });
+                        });
+                        arrays = t.series.map(function(s){ return s.data; });
+                        t.data = [].concat.apply([], arrays);
+                    });
+                    $scope.tracks = response.tracks;
+                });
+                $scope.options = {
+                    axes: {
+                        x: { type: 'date', zoomable: true, },
+                        y: {},
+                        y2: { ticks: 1, min: 0, max: 1, } },
+                    series: [
+                        { y: 'input', axis: 'y', type: 'area', label: 'Temperature', color: '#d62728', },
+                        { y: 'outputSSR', type: 'area', axis: 'y2', label: 'SSR Output', color: '#ff7f0e', }
+                    ],
+                    drawDots: false
+                };
+            });
+        </script>
+    </head>
+    <body ng-controller='MainCtrl'>
+        <p>{{setup.name}} ({{setup.dateTime | date:'dd/MM/yyyy'}})</p>
+        <linechart ng-repeat="track in tracks" data="track.data" options="options" mode="" height="300"></linechart>
+    </body>
+</html>
