@@ -1,0 +1,30 @@
+<md-dialog aria-label="Gist" ng-cloak>
+    <form>
+        <md-toolbar>
+            <div class="md-toolbar-tools">
+                <h2>Gist</h2>
+                <span flex></span>
+                <button-base on-click="cancel()" aria-label="Cancel" icon="close" class="md-icon-button" fill="white"></button-base>
+            </div>
+        </md-toolbar>
+        <md-dialog-content class="md-dialog-content">
+            <div layout="row" layout-align="start center" ng-if="promise.$$state.status === 0">
+                <md-progress-circular md-mode="indeterminate" md-diameter="20">
+                </md-progress-circular>
+                <span style="padding-left:.5em;">Gisting...</span>
+            </div>
+            <div ng-if="promise.$$state.status === 1">
+                <a href="{{ data.html_url }}" target="_blank">gist: {{ data.description }}</a><br/>
+                <a href="{{ data.html_url.replace('gist.github.com', 'bl.ocks.org') }}" target="_blank">bl.ocks: {{ data.description }}</a>
+            </div>
+            <div ng-if="promise.$$state.status === 2">
+                Failed!
+            </div>
+        </md-dialog-content>
+        <md-dialog-actions layout="row">
+            <md-button ng-click="cancel()">
+                Ok
+            </md-button>
+        </md-dialog-actions>
+    </form>
+</md-dialog>

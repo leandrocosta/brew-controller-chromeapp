@@ -1,6 +1,6 @@
 (function() {
     angular.module('App')
-        .controller('MainCtrl', function($scope, $element, $timeout, $q, $http, $base64, $mdDialog, $mdToast, appConfig, chromeStorage, arduinoService, toastQueue, generalConfigService) {
+        .controller('MainCtrl', function($scope, $element, $timeout, $q, $http, $base64, $mdDialog, $mdToast, appConfig, chromeStorage, arduinoService, toastQueue, generalConfigService, gistService) {
             var vm = this;
             $scope.vm = vm;
 
@@ -295,26 +295,8 @@
             };
 
             vm.gist = function(ev) {
-                $http.get('app/gist/index.tpl.html').then(function(response) {
-                    var indexHtmlContent = response.data;
-                    var config = generalConfigService.getConfig();
-                    var auth = $base64.encode(config.githubUsername + ':' + config.githubPassword);
-                    $http.defaults.headers.common['Authorization'] = 'Basic ' + auth;
-                    var setup = angular.extend(angular.copy(vm.currentSetup), { tracks: vm.tracks });
-                    var gist = {
-                        description: vm.currentSetup.name + '(' + new Date(vm.currentSetup.dateTime).toISOString().substring(0, 10) + ')',
-                        public: true,
-                        files: {
-                            'index.html': {
-                                content: indexHtmlContent
-                            }, 'data.json': {
-                                content: angular.toJson(setup)
-                            }
-                        }
-                    };
-                    //console.log(gist);
-                    $http.post('https://api.github.com/gists', gist, {'Content-Type':'application/json'});
-                });
+                var setup = angular.extend(angular.copy(vm.currentSetup), { tracks: vm.tracks });
+                gistService.gist(ev, setup);
             };
         });
 })();
