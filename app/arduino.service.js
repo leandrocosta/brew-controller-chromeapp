@@ -17,8 +17,6 @@
                 var msg = 'CONNECTED TO ' + config.usbPort + ' at ' + config.bitrate;
                 that.log(msg);
                 that.state.desc = 'Connected!';
-                //promises["connect"].resolve();
-                //delete promises["connect"];
             });
 
             connection.onConnectError.addListener(function() {
@@ -44,14 +42,13 @@
                     throw err;
                 }
                 if (angular.isDefined(obj.status)) {
-                    if (promises['connect']) {
+                    if (promises["connect"]) {
                         promises["connect"].resolve(obj);
                         delete promises["connect"];
-                    } else {
-                        $timeout(function() {
-                            $rootScope.$broadcast('save-config');
-                        });
                     }
+                    $timeout(function() {
+                        $rootScope.$broadcast('save-config');
+                    });
                 } else if (angular.isDefined(obj.cmd) && angular.isDefined(obj.success)) {
                     promises[obj.cmd][obj.idx].resolve(obj);
                     delete promises[obj.cmd][obj.idx];
