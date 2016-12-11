@@ -10,15 +10,19 @@
                 $http.get('data.json').success(function(response) {
                   $scope.setup = response;
                     response.tracks.forEach(function(t) {
-                        t.series.forEach(function(s) {
-                            s.data.forEach(function(sample) {
-                                if (!(sample.x instanceof Date)) {
-                                    sample.x = new Date(sample._xDateTime);
-                                }
+                        if (t.series) {
+                            t.series.forEach(function(s) {
+                                s.data.forEach(function(sample) {
+                                    if (!(sample.x instanceof Date)) {
+                                        sample.x = new Date(sample._xDateTime);
+                                    }
+                                });
                             });
-                        });
-                        arrays = t.series.map(function(s){ return s.data; });
-                        t.data = [].concat.apply([], arrays);
+                            arrays = t.series.map(function(s){ return s.data; });
+                            t.data = [].concat.apply([], arrays);
+                        } else {
+                          t.data = [];
+                        }
                     });
                     $scope.tracks = response.tracks;
                 });
