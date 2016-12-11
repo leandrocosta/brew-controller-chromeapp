@@ -3,12 +3,13 @@
         .module('App')
         .service('arduinoService', arduinoService);
 
-    function arduinoService($q, $interval, appConfig, generalConfigService) {
+    function arduinoService($rootScope, $q, $interval, $timeout, appConfig, generalConfigService) {
         var that = this;
 
         var connection;
 
         function initConnection() {
+            console.log('init connection...');
             connection = new SerialConnection();
 
             connection.onConnect.addListener(function() {
@@ -30,32 +31,63 @@
 
             connection.onReadLine.addListener(function(str) {
                 that.log('RECV[' + str + ']');
-                if (str.indexOf('LOG:') !== 0) {
-                    var obj = angular.fromJson(str);
-                    if (angular.isDefined(obj.status)) {
+
+                if (!str || str.indexOf('LOG:') === 0) {
+                    return;
+                }
+
+                var obj;
+                try {
+                    obj = angular.fromJson(str);
+                } catch (err) {
+                    err.message += ' [' + str + ']';
+                    throw err;
+                }
+                if (angular.isDefined(obj.status)) {
+                    if (promises['connect']) {
                         promises["connect"].resolve(obj);
                         delete promises["connect"];
-                    } else if (angular.isDefined(obj.cmd) && angular.isDefined(obj.success)) {
-                        promises[obj.cmd][obj.idx].resolve(obj);
-                        delete promises[obj.cmd][obj.idx];
-                    } else if (angular.isDefined(obj.idx)) {
-                        that.listeners[obj.idx](obj);
+                    } else {
+                        $timeout(function() {
+                            $rootScope.$broadcast('save-config');
+                        });
                     }
+                } else if (angular.isDefined(obj.cmd) && angular.isDefined(obj.success)) {
+                    promises[obj.cmd][obj.idx].resolve(obj);
+                    delete promises[obj.cmd][obj.idx];
+                } else if (angular.isDefined(obj.idx)) {
+                    that.listeners[obj.idx](obj);
                 }
             });
 
             connection.onError.addListener(function(error) {
-                var msg = 'ERROR [' + error.toString() + '] - changing connectionId from [' + connection.connectionId + '] to -1';
-                that.log(msg);
-                connection.connectionId = -1;
-                that.state.desc = 'Connection error!';
+                console.log('Connection error, trying to reconnect after 5 secs...');
+                $timeout(function(){
+                    chrome.serial.getDevices(function(ports) {
+                        generalConfigService.getConfig().ports = ports;
+                        generalConfigService.getConfig().usbPort = ports[0].path;
+
+                        that.connect().then(function() {
+                            console.log('Reconnected!');
+                            $timeout(function() {
+                                $rootScope.$broadcast('save-config');
+                            });
+                        }, function() {
+                            var msg = 'ERROR [' + error.toString() + '] - changing connectionId from [' + connection.connectionId + '] to -1';
+                            that.log(msg);
+                            connection.connectionId = -1;
+                            that.state.desc = 'Connection error!';
+                            $rootScope.$digest();
+                        });
+                    });
+                }, 5000);
             });
         }
 
         initConnection();
 
         this.isConnected = function() {
-            return connection.connectionId >= 0;
+            return connection && connection.connectionId >= 0;
         };
 
         var promises = {
@@ -171,8 +203,8 @@
             that.state.desc = 'Connecting...';
             var deferred = $q.defer();
             promises["connect"] = deferred;
-            initConnection();
-            connection.connect(usbPort, bitrate);
+            //initConnection();
+            connection.connect(config.usbPort, config.bitrate);
             return deferred.promise;
         };
 
@@ -239,12 +271,6 @@
     }
 })();
 
-// Serial used from your Arduino board
-//const DEVICE_PATH = 'COM11'; // PC
-//const DEVICE_PATH = '/dev/ttyACM0'; //MAC
-const DEVICE_PATH = '/dev/ttyUSB0';
-const serial = chrome.serial;
-
 /* Interprets an ArrayBuffer as UTF-8 encoded string data. */
 var ab2str = function(buf) {
     var bufView = new Uint8Array(buf);
@@ -271,12 +297,14 @@ var str2ab = function(str) {
 var SerialConnection = function() {
     this.connectionId = -1;
     this.lineBuffer = "";
-    this.boundOnReceive = this.onReceive.bind(this);
-    this.boundOnReceiveError = this.onReceiveError.bind(this);
+    //this.boundOnReceive = this.onReceive.bind(this);
+    //this.boundOnReceiveError = this.onReceiveError.bind(this);
     this.onConnect = new chrome.Event();
     this.onConnectError = new chrome.Event();
     this.onReadLine = new chrome.Event();
     this.onError = new chrome.Event();
+    chrome.serial.onReceive.addListener(this.onReceive.bind(this));
+    chrome.serial.onReceiveError.addListener(this.onReceiveError.bind(this));
 };
 
 SerialConnection.prototype.onConnectComplete = function(connectionInfo) {
@@ -288,8 +316,8 @@ SerialConnection.prototype.onConnectComplete = function(connectionInfo) {
     console.log('onConnectComplete', connectionInfo);
     this.lineBuffer = "";
     this.connectionId = connectionInfo.connectionId;
-    chrome.serial.onReceive.addListener(this.boundOnReceive);
-    chrome.serial.onReceiveError.addListener(this.boundOnReceiveError);
+    //chrome.serial.onReceive.addListener(this.boundOnReceive);
+    //chrome.serial.onReceiveError.addListener(this.boundOnReceiveError);
     this.onConnect.dispatch();
 };
 
@@ -324,7 +352,7 @@ SerialConnection.prototype.onReceiveError = function(errorInfo) {
 
 SerialConnection.prototype.connect = function(path, bitrate) {
     console.log('trying to connect to ' + path + ' at ' + bitrate);
-    serial.connect(path, {
+    chrome.serial.connect(path, {
         bitrate: bitrate
     }, this.onConnectComplete.bind(this));
 };
@@ -333,10 +361,10 @@ SerialConnection.prototype.send = function(msg) {
     if (this.connectionId < 0) {
         throw 'Invalid connection';
     }
-    serial.send(this.connectionId, str2ab(msg), function(info) {
+    chrome.serial.send(this.connectionId, str2ab(msg), function(info) {
         //console.log('send', info);
     });
-    serial.flush(this.connectionId, function(info) {
+    chrome.serial.flush(this.connectionId, function(info) {
         //console.log('flush', info);
     });
 };
@@ -347,7 +375,7 @@ SerialConnection.prototype.disconnect = function() {
     }
     var that = this;
     //var deferred = $q.defer();
-    serial.disconnect(this.connectionId, function() {
+    chrome.serial.disconnect(this.connectionId, function() {
         that.connectionId = -1;
         //deferred.resolve(true);
     });
