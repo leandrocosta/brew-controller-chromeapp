@@ -304,6 +304,7 @@
                     var config = generalConfigService.getConfig();
                     var auth = $base64.encode(config.githubUsername + ':' + config.githubPassword);
                     $http.defaults.headers.common['Authorization'] = 'Basic ' + auth;
+                    var setup = angular.extend(angular.copy(vm.currentSetup), { tracks: vm.tracks });
                     var gist = {
                         description: vm.currentSetup.name + '(' + new Date(vm.currentSetup.dateTime).toISOString().substring(0, 10) + ')',
                         public: true,
@@ -311,7 +312,7 @@
                             'index.html': {
                                 content: indexHtmlContent
                             }, 'data.json': {
-                                content: angular.toJson(vm.currentSetup)
+                                content: angular.toJson(setup)
                             }
                         }
                     };
