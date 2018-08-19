@@ -222,7 +222,7 @@
                             angular.forEach(vm.tracks, function(track) {
                                 track.series = [];
                             });
-                            vm.selectedSetup = undefined;
+                            vm.selectedSetup = null;
                             $mdDialog.hide();
                         };
 
